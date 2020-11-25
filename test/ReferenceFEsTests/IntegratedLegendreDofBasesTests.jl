@@ -20,22 +20,21 @@ include("../../src/ReferenceFEs/IntegratedLegendreDofBases.jl")
 
 # Scalar: 1D Linear
 D = 2
-order = (2,3)
 V = Float64
+order = (2,3)
+
 b = IntegratedLegendreBasis{D}(V,order)
-_ = _IL_nodes_and_moments!(QUAD,b)
+# _IL_nodes_and_moments!(QUAD,b)
 
 lag_nodes, _ = compute_nodes(QUAD,b.orders)
 lag_dofs = LagrangianDofBasis(V,lag_nodes)
 
 change = inv(evaluate(lag_dofs,b))
-lag_interpolation = evaluate(lag_dofs,b) # runtime
-mod_interpolation = evaluate(*,change,lag_interpolation)
+lag_interpolation = evaluate(lag_dofs,b)
+mod_interpolation = evaluate(*,transpose(lag_interpolation),transpose(change))
 
 mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
-cache = return_cache(*,change,lag_interpolation)
-c, cf = return_cache(mod_dofs,b)
-@test mod_interpolation == evaluate(mod_dofs,b)
+@test mod_interpolation ≈ evaluate(mod_dofs,b)
 
 # # Scalar: 1D Linear
 # D = 1

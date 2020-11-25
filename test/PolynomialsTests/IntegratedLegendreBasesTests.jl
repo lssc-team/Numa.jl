@@ -11,6 +11,9 @@ import Gridap.Fields: Broadcasting
 
 @test all(map(i->map(x->_legendre(x,Val{i}()),(-1,1))==(1-2*(i%2),1),0:4))
 
+# REMARK: In all test cases below
+# _sort_by_tensor_prod! == _sort_by_n_faces!
+
 # Real-valued Q space with isotropic order
 
 xi = Point(0.5)

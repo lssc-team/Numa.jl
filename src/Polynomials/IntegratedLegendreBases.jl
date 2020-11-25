@@ -14,17 +14,17 @@ end
 @inline Base.IndexStyle(::IntegratedLegendreBasis) = IndexLinear()
 
 function IntegratedLegendreBasis{D}(
-  ::Type{T}, orders::NTuple{D,Int}, filter::Function=_q_filter_il) where {D,T}
+  ::Type{T}, orders::NTuple{D,Int}; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
-  terms = _define_terms_il(filter, orders)
+  terms = _define_terms_il(filter, sort!, orders)
   IntegratedLegendreBasis{D}(T,orders,terms)
 end
 
 function IntegratedLegendreBasis{D}(
-  ::Type{T}, order::Int, filter::Function=_q_filter_il) where {D,T}
+  ::Type{T}, order::Int; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
   orders = tfill(order,Val{D}())
-  IntegratedLegendreBasis{D}(T,orders,filter)
+  IntegratedLegendreBasis{D}(T,orders;filter=filter,sort! = sort!)
 end
 
 # API
@@ -50,7 +50,7 @@ function return_cache(f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Point}
   @assert D == length(eltype(x)) "Incorrect number of point components"
   np = length(x)
   ndof = length(f.terms)*num_components(T)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   r = CachedArray(zeros(T,(np,ndof)))
   v = CachedArray(zeros(T,(ndof,)))
   c = CachedArray(zeros(eltype(T),(D,n)))
@@ -61,7 +61,7 @@ function evaluate!(cache,f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Poi
   r, v, c = cache
   np = length(x)
   ndof = length(f.terms)*num_components(T)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   setsize!(r,(np,ndof))
   setsize!(v,(ndof,))
   setsize!(c,(D,n))
@@ -85,7 +85,7 @@ function return_cache(
   ndof = length(f.terms)*num_components(V)
   xi = testitem(x)
   T = gradient_type(V,xi)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   r = CachedArray(zeros(T,(np,ndof)))
   v = CachedArray(zeros(T,(ndof,)))
   c = CachedArray(zeros(eltype(T),(D,n)))
@@ -102,7 +102,7 @@ function evaluate!(
   r, v, c, g = cache
   np = length(x)
   ndof = length(f.terms) * num_components(T)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   setsize!(r,(np,ndof))
   setsize!(v,(ndof,))
   setsize!(c,(D,n))
@@ -127,7 +127,7 @@ function return_cache(
   ndof = length(f.terms)*num_components(V)
   xi = testitem(x)
   T = gradient_type(gradient_type(V,xi),xi)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   r = CachedArray(zeros(T,(np,ndof)))
   v = CachedArray(zeros(T,(ndof,)))
   c = CachedArray(zeros(eltype(T),(D,n)))
@@ -145,7 +145,7 @@ function evaluate!(
   r, v, c, g, h = cache
   np = length(x)
   ndof = length(f.terms) * num_components(T)
-  n = 1 + _maximum_il(f.orders)
+  n = 1 + _maximum(f.orders)
   setsize!(r,(np,ndof))
   setsize!(v,(ndof,))
   setsize!(c,(D,n))
@@ -165,13 +165,42 @@ end
 
 _q_filter_il(e,o) = true
 
-function _define_terms_il(filter,orders)
-  t = orders .+ 1
-  g = (0 .* orders) .+ 1
-  cis = CartesianIndices(t)
-  co = CartesianIndex(g)
-  maxorder = _maximum_il(orders)
-  [ ci for ci in cis if filter(Int[Tuple(ci-co)...],maxorder) ]
+_sort_by_tensor_prod!(terms,orders) = terms
+
+function _sort_by_nfaces!(terms::Vector{CartesianIndex{D}},orders) where D
+
+  # Generate indices of n-faces and order s.t.
+  # (1) dimension-increasing (2) lexicographic
+  bin_rang_nfaces = tfill(0:1,Val{D}())
+  bin_ids_nfaces = collect(Iterators.product(bin_rang_nfaces...))
+  sum_bin_ids_nfaces = [sum(bin_ids_nfaces[i]) for i in eachindex(bin_ids_nfaces)]
+  bin_ids_nfaces = permute!(bin_ids_nfaces,sortperm(sum_bin_ids_nfaces))
+
+  # Generate LIs of basis funs s.t. order by n-faces
+  lids_b = LinearIndices(Tuple([orders[i]+1 for i=1:D]))
+
+  eet = eltype(eltype(bin_ids_nfaces))
+  f(x) = Tuple( x[i] == one(eet) ? (0:0) : (1:2) for i in 1:length(x) )
+  g(x) = Tuple( x[i] == one(eet) ? (3:orders[i]+1) : (0:0) for i in 1:length(x) )
+  rang_nfaces = map(f,bin_ids_nfaces)
+  rang_own_dofs = map(g,bin_ids_nfaces)
+
+  P = Int64[]
+  for i = 1:length(bin_ids_nfaces)
+    cis_nfaces = CartesianIndices(rang_nfaces[i])
+    cis_own_dofs = CartesianIndices(rang_own_dofs[i])
+    for ci in cis_nfaces
+      ci = ci .+ cis_own_dofs
+      P = vcat(P,reshape(lids_b[ci],length(ci)))
+    end
+  end
+
+  permute!(terms,P)
+end
+
+function _define_terms_il(filter,sort!,orders)
+  terms = _define_terms(filter,orders)
+  sort!(terms,orders)
 end
 
 function _legendre(ξ,::Val{N}) where N
@@ -240,30 +269,10 @@ function _evaluate_nd_il!(
       @inbounds s *= c[d,ci[d]]
     end
 
-    k = _set_value_il!(v,s,k)
+    k = _set_value!(v,s,k)
 
   end
 
-end
-
-@inline function _set_value_il!(v::AbstractVector{V},s::T,k) where {V,T}
-  m = zero(Mutable(V))
-  z = zero(T)
-  js = eachindex(m)
-  for j in js
-    for i in js
-      @inbounds m[i] = z
-    end
-    m[j] = s
-    v[k] = m
-    k += 1
-  end
-  k
-end
-
-@inline function _set_value_il!(v::AbstractVector{<:Real},s,k)
-    @inbounds v[k] = s
-    k+1
 end
 
 function _gradient_nd_il!(
@@ -301,37 +310,10 @@ function _gradient_nd_il!(
       end
     end
 
-    k = _set_gradient_il!(v,s,k,V)
+    k = _set_gradient!(v,s,k,V)
 
   end
 
-end
-
-@inline function _set_gradient_il!(
-  v::AbstractVector{G},s,k,::Type{<:Real}) where G
-
-  @inbounds v[k] = s
-  k+1
-end
-
-@inline function _set_gradient_il!(
-  v::AbstractVector{G},s,k,::Type{V}) where {V,G}
-
-  T = eltype(s)
-  m = zero(Mutable(G))
-  w = zero(V)
-  z = zero(T)
-  for j in CartesianIndices(w)
-    for i in CartesianIndices(m)
-     @inbounds m[i] = z
-    end
-    for i in CartesianIndices(s)
-      @inbounds m[i,j] = s[i]
-    end
-    @inbounds v[k] = m
-    k += 1
-  end
-  k
 end
 
 function _hessian_nd_il!(
@@ -375,11 +357,8 @@ function _hessian_nd_il!(
       end
     end
 
-    k = _set_gradient_il!(v,s,k,V)
+    k = _set_gradient!(v,s,k,V)
 
   end
 
 end
-
-_maximum_il(orders::Tuple{}) = 0
-_maximum_il(orders) = maximum(orders)
