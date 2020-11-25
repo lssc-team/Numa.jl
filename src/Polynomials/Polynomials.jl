@@ -22,7 +22,6 @@ export MonomialBasis
 export ModalC0Basis
 export QGradMonomialBasis
 export QCurlGradMonomialBasis
-#export change_basis
 export get_exponents
 
 export get_order
@@ -36,7 +35,5 @@ include("ModalC0Bases.jl")
 include("QGradMonomialBases.jl")
 
 include("QCurlGradMonomialBases.jl")
-
-#include("ChangeBasis.jl")
 
 end # module
