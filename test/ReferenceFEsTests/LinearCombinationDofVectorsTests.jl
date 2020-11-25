@@ -1,4 +1,4 @@
-module IntegratedLegendreDofBasesTests
+module LinearCombinationDofVectorsTests
 
 using Test
 using Gridap.Helpers
@@ -16,7 +16,7 @@ import Gridap.ReferenceFEs: get_coordinates, get_weights
 import Gridap.ReferenceFEs: compute_nodes, evaluate
 import Gridap.ReferenceFEs: _evaluate_lagr_dof!
 
-include("../../src/ReferenceFEs/IntegratedLegendreDofBases.jl")
+include("../../src/ReferenceFEs/LinearCombinationDofVectors.jl")
 
 # Scalar: 1D Linear
 D = 2
@@ -33,7 +33,7 @@ change = inv(evaluate(lag_dofs,b))
 lag_interpolation = evaluate(lag_dofs,b)
 mod_interpolation = evaluate(*,transpose(lag_interpolation),transpose(change))
 
-mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
+mod_dofs = LinearCombinationDofVector(V,QUAD,b)
 @test mod_interpolation ≈ evaluate(mod_dofs,b)
 
 # # Scalar: 1D Linear

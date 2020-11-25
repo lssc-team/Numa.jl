@@ -1,27 +1,27 @@
 struct Mode <: Dof end
 
-struct IntegratedLegendreDofBasis{P,V,T} <: AbstractVector{Mode}
+struct LinearCombinationDofVector{P,V,T} <: AbstractVector{Mode}
   lag_dof_basis::LagrangianDofBasis{P,V}
   change_of_basis::Matrix{T}
 end
 
-function IntegratedLegendreDofBasis(::Type{T},p::Polytope,b::ModalC0Basis) where T
+function LinearCombinationDofVector(::Type{T},p::Polytope,b::ModalC0Basis) where T
   lag_nodes, _ = compute_nodes(p,b.orders)
   lag_dof_basis = LagrangianDofBasis(T,lag_nodes)
   change_of_basis = inv(evaluate(lag_dof_basis,b))
-  IntegratedLegendreDofBasis(lag_dof_basis,change_of_basis)
+  LinearCombinationDofVector(lag_dof_basis,change_of_basis)
 end
 
-@inline Base.size(a::IntegratedLegendreDofBasis) = size(a.lag_dof_basis)
-@inline Base.axes(a::IntegratedLegendreDofBasis) = axes(a.lag_dof_basis)
-@inline Base.getindex(a::IntegratedLegendreDofBasis,i::Integer) = Mode()
-@inline Base.IndexStyle(::IntegratedLegendreDofBasis) = IndexLinear()
+@inline Base.size(a::LinearCombinationDofVector) = size(a.lag_dof_basis)
+@inline Base.axes(a::LinearCombinationDofVector) = axes(a.lag_dof_basis)
+@inline Base.getindex(a::LinearCombinationDofVector,i::Integer) = Mode()
+@inline Base.IndexStyle(::LinearCombinationDofVector) = IndexLinear()
 
-function return_cache(b::IntegratedLegendreDofBasis,field)
+function return_cache(b::LinearCombinationDofVector,field)
   return_cache(b.lag_dof_basis,field)
 end
 
-@inline function evaluate!(cache,b::IntegratedLegendreDofBasis,field)
+@inline function evaluate!(cache,b::LinearCombinationDofVector,field)
   c, cf = cache
   vals = evaluate!(cf,field,b.lag_dof_basis.nodes)
   vals = evaluate!(c,*,b.change_of_basis,vals)
