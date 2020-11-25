@@ -23,7 +23,7 @@ D = 2
 V = Float64
 order = (2,3)
 
-b = IntegratedLegendreBasis{D}(V,order)
+b = ModalC0Basis{D}(V,order)
 # _IL_nodes_and_moments!(QUAD,b)
 
 lag_nodes, _ = compute_nodes(QUAD,b.orders)
@@ -40,7 +40,7 @@ mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
 # D = 1
 # order = 1
 # V = Float64
-# # b = IntegratedLegendreBasis{D}(V,order)
+# # b = ModalC0Basis{D}(V,order)
 # # nodes, f_moments, f_nodes = _IL_nodes_and_moments(SEGMENT,b)
 # dofs1 = IntegratedLegendreRefFE(V,SEGMENT,order)
 
@@ -48,7 +48,7 @@ mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
 # D = 1
 # order = 3
 # V = Float64
-# # b = IntegratedLegendreBasis{D}(V,order)
+# # b = ModalC0Basis{D}(V,order)
 # # nodes2, f_moments2, f_nodes2 = _IL_nodes_and_moments(SEGMENT,b)
 # dofs2 = IntegratedLegendreRefFE(V,SEGMENT,order)
 
@@ -56,7 +56,7 @@ mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
 # D = 2
 # orders = (2,3)
 # V = Float64
-# # b = IntegratedLegendreBasis{D}(V,orders)
+# # b = ModalC0Basis{D}(V,orders)
 # # nodes3, f_moments3, f_nodes3, f_dofs3, vals = _IL_nodes_and_moments!(QUAD,b)
 # dofs3 = IntegratedLegendreRefFE(V,QUAD,orders)
 
@@ -64,7 +64,7 @@ mod_dofs = IntegratedLegendreDofBasis(V,QUAD,b)
 # # D = 3
 # # order = 2
 # # V = Float64
-# # b = IntegratedLegendreBasis{D}(V,order)
+# # b = ModalC0Basis{D}(V,order)
 # # nodes4, f_moments4, f_nodes4 = _IL_nodes_and_moments(HEX,b)
 
 # # cache = return_cache(b,[xi,])

@@ -5,7 +5,7 @@ struct IntegratedLegendreDofBasis{P,V,T} <: AbstractVector{Mode}
   change_of_basis::Matrix{T}
 end
 
-function IntegratedLegendreDofBasis(::Type{T},p::Polytope,b::IntegratedLegendreBasis) where T
+function IntegratedLegendreDofBasis(::Type{T},p::Polytope,b::ModalC0Basis) where T
   lag_nodes, _ = compute_nodes(p,b.orders)
   lag_dof_basis = LagrangianDofBasis(T,lag_nodes)
   change_of_basis = inv(evaluate(lag_dof_basis,b))

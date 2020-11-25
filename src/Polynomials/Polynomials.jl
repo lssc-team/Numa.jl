@@ -19,7 +19,7 @@ import Gridap.Fields: return_cache
 import Gridap.Arrays: return_type
 
 export MonomialBasis
-export IntegratedLegendreBasis
+export ModalC0Basis
 export QGradMonomialBasis
 export QCurlGradMonomialBasis
 #export change_basis
@@ -31,7 +31,7 @@ export num_terms
 
 include("MonomialBases.jl")
 
-include("IntegratedLegendreBases.jl")
+include("ModalC0Bases.jl")
 
 include("QGradMonomialBases.jl")
 

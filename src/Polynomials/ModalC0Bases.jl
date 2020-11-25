@@ -1,52 +1,52 @@
-struct IntegratedLegendre <: Field end
+struct ModalC0 <: Field end
 
-struct IntegratedLegendreBasis{D,T} <: AbstractVector{IntegratedLegendre}
+struct ModalC0Basis{D,T} <: AbstractVector{ModalC0}
   orders::NTuple{D,Int}
   terms::Vector{CartesianIndex{D}}
-  function IntegratedLegendreBasis{D}(
+  function ModalC0Basis{D}(
     ::Type{T}, orders::NTuple{D,Int}, terms::Vector{CartesianIndex{D}}) where {D,T}
     new{D,T}(orders,terms)
   end
 end
 
-@inline Base.size(a::IntegratedLegendreBasis{D,T}) where {D,T} = (length(a.terms)*num_components(T),)
-@inline Base.getindex(a::IntegratedLegendreBasis,i::Integer) = IntegratedLegendre()
-@inline Base.IndexStyle(::IntegratedLegendreBasis) = IndexLinear()
+@inline Base.size(a::ModalC0Basis{D,T}) where {D,T} = (length(a.terms)*num_components(T),)
+@inline Base.getindex(a::ModalC0Basis,i::Integer) = ModalC0()
+@inline Base.IndexStyle(::ModalC0Basis) = IndexLinear()
 
-function IntegratedLegendreBasis{D}(
+function ModalC0Basis{D}(
   ::Type{T}, orders::NTuple{D,Int}; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
   terms = _define_terms_il(filter, sort!, orders)
-  IntegratedLegendreBasis{D}(T,orders,terms)
+  ModalC0Basis{D}(T,orders,terms)
 end
 
-function IntegratedLegendreBasis{D}(
+function ModalC0Basis{D}(
   ::Type{T}, order::Int; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
   orders = tfill(order,Val{D}())
-  IntegratedLegendreBasis{D}(T,orders;filter=filter,sort! = sort!)
+  ModalC0Basis{D}(T,orders;filter=filter,sort! = sort!)
 end
 
 # API
 
-function get_exponents(b::IntegratedLegendreBasis)
+function get_exponents(b::ModalC0Basis)
   indexbase = 1
   [Tuple(t) .- indexbase for t in b.terms]
 end
 
-function get_order(b::IntegratedLegendreBasis)
+function get_order(b::ModalC0Basis)
   maximum(b.orders)
 end
 
-function get_orders(b::IntegratedLegendreBasis)
+function get_orders(b::ModalC0Basis)
   b.orders
 end
 
-return_type(::IntegratedLegendreBasis{D,T}) where {D,T} = T
+return_type(::ModalC0Basis{D,T}) where {D,T} = T
 
 # Field implementation
 
-function return_cache(f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Point}) where {D,T}
+function return_cache(f::ModalC0Basis{D,T},x::AbstractVector{<:Point}) where {D,T}
   @assert D == length(eltype(x)) "Incorrect number of point components"
   np = length(x)
   ndof = length(f.terms)*num_components(T)
@@ -57,7 +57,7 @@ function return_cache(f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Point}
   (r, v, c)
 end
 
-function evaluate!(cache,f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Point}) where {D,T}
+function evaluate!(cache,f::ModalC0Basis{D,T},x::AbstractVector{<:Point}) where {D,T}
   r, v, c = cache
   np = length(x)
   ndof = length(f.terms)*num_components(T)
@@ -76,7 +76,7 @@ function evaluate!(cache,f::IntegratedLegendreBasis{D,T},x::AbstractVector{<:Poi
 end
 
 function return_cache(
-  fg::FieldGradientArray{1,IntegratedLegendreBasis{D,V}},
+  fg::FieldGradientArray{1,ModalC0Basis{D,V}},
   x::AbstractVector{<:Point}) where {D,V}
 
   f = fg.fa
@@ -95,7 +95,7 @@ end
 
 function evaluate!(
   cache,
-  fg::FieldGradientArray{1,IntegratedLegendreBasis{D,T}},
+  fg::FieldGradientArray{1,ModalC0Basis{D,T}},
   x::AbstractVector{<:Point}) where {D,T}
 
   f = fg.fa
@@ -118,7 +118,7 @@ function evaluate!(
 end
 
 function return_cache(
-  fg::FieldGradientArray{2,IntegratedLegendreBasis{D,V}},
+  fg::FieldGradientArray{2,ModalC0Basis{D,V}},
   x::AbstractVector{<:Point}) where {D,V}
 
   f = fg.fa
@@ -138,7 +138,7 @@ end
 
 function evaluate!(
   cache,
-  fg::FieldGradientArray{2,IntegratedLegendreBasis{D,T}},
+  fg::FieldGradientArray{2,ModalC0Basis{D,T}},
   x::AbstractVector{<:Point}) where {D,T}
 
   f = fg.fa

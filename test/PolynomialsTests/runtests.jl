@@ -4,7 +4,7 @@ using Test
 
 @testset "MonomialBases" begin include("MonomialBasesTests.jl") end
 
-@testset "IntegratedLegendreBases" begin include("IntegratedLegendreBasesTests.jl") end
+@testset "ModalC0Bases" begin include("ModalC0BasesTests.jl") end
 
 @testset "QGradMonomialBases" begin include("QGradMonomialBasesTests.jl") end
 

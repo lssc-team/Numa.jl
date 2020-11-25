@@ -1,4 +1,4 @@
-module IntegratedLegendreBasesTests
+module ModalC0BasesTests
 
 using Test
 using Gridap.TensorValues
@@ -22,7 +22,7 @@ G = gradient_type(V,xi)
 H = gradient_type(G,xi)
 order = 3
 
-b = IntegratedLegendreBasis{1}(V,order)
+b = ModalC0Basis{1}(V,order)
 ∇b = Broadcasting(∇)(b)
 ∇∇b = Broadcasting(∇)(∇b)
 
@@ -51,7 +51,7 @@ order = 1
 V = Float64
 G = gradient_type(V,xi)
 H = gradient_type(G,xi)
-b = IntegratedLegendreBasis{2}(V,order)
+b = ModalC0Basis{2}(V,order)
 
 v = V[0.25, 0.25, 0.25, 0.25]
 g = G[(-0.5, -0.5), (0.5, -0.5), (-0.5, 0.5), (0.5, 0.5)]
@@ -69,7 +69,7 @@ V = Float64
 G = gradient_type(V,xi)
 H = gradient_type(G,xi)
 
-b = IntegratedLegendreBasis{2}(V,orders)
+b = ModalC0Basis{2}(V,orders)
 ∇b = Broadcasting(∇)(b)
 ∇∇b = Broadcasting(∇)(∇b)
 
@@ -87,7 +87,7 @@ order = 1
 V = VectorValue{3,Float64}
 G = gradient_type(V,xi)
 H = gradient_type(G,xi)
-b = IntegratedLegendreBasis{2}(V,order)
+b = ModalC0Basis{2}(V,order)
 
 v = V[[0.25, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25],
       [0.25, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25],
