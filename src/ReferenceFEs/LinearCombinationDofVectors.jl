@@ -24,13 +24,13 @@ end
 end
 
 function test_lincom_dofvecs(::Type{T},p::Polytope{D},orders::NTuple{D,Int}) where {D,T}
-  b = ModalC0Basis{D}(T,orders)
-  nodes, _ = compute_nodes(p,b.orders)
+  mb = ModalC0Basis{D}(T,orders)
+  nodes, _ = compute_nodes(p,mb.orders)
   predofs = LagrangianDofBasis(T,nodes)
-  change = inv(evaluate(predofs,b))
+  change = inv(evaluate(predofs,mb))
   lincom_dofvals = linear_combination(change,predofs)
-  id = Matrix{eltype(T)}(I,size(b)[1],size(b)[1])
-  @test id ≈ evaluate(lincom_dofvals,b)
+  id = Matrix{eltype(T)}(I,size(mb)[1],size(mb)[1])
+  @test id ≈ evaluate(lincom_dofvals,mb)
 end
 
 function test_lincom_dofvecs(::Type{T},p::Polytope{D},order::Int) where {D,T}

@@ -38,4 +38,7 @@ test_lincom_dofvecs(VectorValue{3,Float64},HEX,order)
 # cache = return_cache(lincom_dofvals,mb)
 # @btime evaluate!($cache,$lincom_dofvals,$mb)
 
+order = 1
+reffe = ReferenceFE(QUAD,:ModalC0,Float64,order)
+
 end # module

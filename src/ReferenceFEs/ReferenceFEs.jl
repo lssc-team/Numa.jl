@@ -193,6 +193,8 @@ include("RaviartThomasRefFEs.jl")
 
 include("NedelecRefFEs.jl")
 
+include("ModalC0RefFEs.jl")
+
 include("MockDofs.jl")
 
 end # module
