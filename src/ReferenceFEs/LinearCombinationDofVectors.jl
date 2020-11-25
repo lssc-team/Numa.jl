@@ -1,42 +1,39 @@
-struct Mode <: Dof end
+function linear_combination(a::AbstractMatrix{<:Number},
+                            b::AbstractVector{<:Dof})
+  LinearCombinationDofVector(a,b)
+end
 
-struct LinearCombinationDofVector{P,V,T} <: AbstractVector{Mode}
-  lag_dof_basis::LagrangianDofBasis{P,V}
+struct LinearCombinationDofVector{T} <: AbstractVector{Dof}
   change_of_basis::Matrix{T}
+  dof_basis::AbstractVector{<:Dof}
 end
 
-function LinearCombinationDofVector(::Type{T},p::Polytope,b::ModalC0Basis) where T
-  lag_nodes, _ = compute_nodes(p,b.orders)
-  lag_dof_basis = LagrangianDofBasis(T,lag_nodes)
-  change_of_basis = inv(evaluate(lag_dof_basis,b))
-  LinearCombinationDofVector(lag_dof_basis,change_of_basis)
-end
-
-@inline Base.size(a::LinearCombinationDofVector) = size(a.lag_dof_basis)
-@inline Base.axes(a::LinearCombinationDofVector) = axes(a.lag_dof_basis)
-@inline Base.getindex(a::LinearCombinationDofVector,i::Integer) = Mode()
+@inline Base.size(a::LinearCombinationDofVector) = size(a.dof_basis)
+@inline Base.axes(a::LinearCombinationDofVector) = axes(a.dof_basis)
+@inline Base.getindex(a::LinearCombinationDofVector,i::Integer) = getindex(a.dof_basis,i)
 @inline Base.IndexStyle(::LinearCombinationDofVector) = IndexLinear()
 
 function return_cache(b::LinearCombinationDofVector,field)
-  return_cache(b.lag_dof_basis,field)
+  vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
+  return_cache(b.dof_basis,vals_to_lincom_vals)
 end
 
 @inline function evaluate!(cache,b::LinearCombinationDofVector,field)
-  c, cf = cache
-  vals = evaluate!(cf,field,b.lag_dof_basis.nodes)
-  vals = evaluate!(c,*,b.change_of_basis,vals)
-  ndofs = length(b.lag_dof_basis.dof_to_node)
-  T = eltype(vals)
-  ncomps = num_components(T)
-  @check ncomps == num_components(eltype(b.lag_dof_basis.node_and_comp_to_dof)) """\n
-  Unable to evaluate LagrangianDofBasis. The number of components of the
-  given Field does not match with the LagrangianDofBasis.
+  vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
+  evaluate!(cache,b.dof_basis,vals_to_lincom_vals)
+end
 
-  If you are trying to interpolate a function on a FESpace make sure that
-  both objects have the same value type.
+function test_lincom_dofvecs(::Type{T},p::Polytope{D},orders::NTuple{D,Int}) where {D,T}
+  b = ModalC0Basis{D}(T,orders)
+  nodes, _ = compute_nodes(p,b.orders)
+  predofs = LagrangianDofBasis(T,nodes)
+  change = inv(evaluate(predofs,b))
+  lincom_dofvals = linear_combination(change,predofs)
+  id = Matrix{eltype(T)}(I,size(b)[1],size(b)[1])
+  @test id ≈ evaluate(lincom_dofvals,b)
+end
 
-  For instance, trying to interpolate a vector-valued funciton on a scalar-valued FE space
-  would raise this error.
-  """
-  _evaluate_lagr_dof!(c,vals,b.lag_dof_basis.node_and_comp_to_dof,ndofs,ncomps)
+function test_lincom_dofvecs(::Type{T},p::Polytope{D},order::Int) where {D,T}
+  orders = tfill(order,Val{D}())
+  test_lincom_dofvecs(T,p,orders)
 end

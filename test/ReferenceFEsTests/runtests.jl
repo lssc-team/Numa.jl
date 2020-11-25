@@ -12,6 +12,8 @@ using Test
 
 @testset "LagrangianDofBases" begin include("LagrangianDofBasesTests.jl") end
 
+@testset "LinearCombinationDofVectors" begin include("LinearCombinationDofVectorsTests.jl") end
+
 @testset "ReferenceFEInterfaces" begin include("ReferenceFEInterfacesTests.jl") end
 
 @testset "LagrangianRefFEs" begin include("LagrangianRefFEsTests.jl") end

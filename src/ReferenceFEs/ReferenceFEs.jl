@@ -23,6 +23,7 @@ import Gridap.Arrays: evaluate!
 import Gridap.Arrays: return_type
 import Gridap.Fields: evaluate
 import Gridap.Fields: lazy_map
+import Gridap.Fields: linear_combination
 import Gridap.Polynomials: MonomialBasis
 
 import Gridap.Polynomials: get_order
@@ -142,6 +143,8 @@ export MomentBasedDofBasis
 export get_face_own_nodes
 export get_face_nodes
 
+export test_lincom_dofvecs
+
 export VERTEX1
 export SEG2
 export TRI3
@@ -171,6 +174,8 @@ include("ExtrusionPolytopes.jl")
 include("Dofs.jl")
 
 include("LagrangianDofBases.jl")
+
+include("LinearCombinationDofVectors.jl")
 
 include("ReferenceFEInterfaces.jl")
 
