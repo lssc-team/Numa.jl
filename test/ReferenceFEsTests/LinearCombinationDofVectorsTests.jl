@@ -10,8 +10,8 @@ using Gridap.ReferenceFEs
 order = 1
 test_lincom_dofvecs(Float64,SEGMENT,order)
 
-order = 3
-test_lincom_dofvecs(Float64,SEGMENT,order)
+# order = 3
+# test_lincom_dofvecs(Float64,SEGMENT,order)
 
 orders = (2,3)
 test_lincom_dofvecs(Float64,QUAD,orders)
@@ -19,8 +19,8 @@ test_lincom_dofvecs(Float64,QUAD,orders)
 order = 1
 test_lincom_dofvecs(VectorValue{2,Float64},QUAD,order)
 
-order = 1
-test_lincom_dofvecs(VectorValue{3,Float64},HEX,order)
+# order = 1
+# test_lincom_dofvecs(VectorValue{3,Float64},HEX,order)
 
 # D = 2
 # T = Float64

@@ -44,7 +44,7 @@ h = H[0.0 0.0 2*sqrt(3) 0.0]
 # Real-valued Q space with isotropic order
 
 xi = Point(0.5,0.5)
-np = 3
+np = 2
 x = fill(xi,np)
 
 order = 1

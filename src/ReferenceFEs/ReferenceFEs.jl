@@ -143,6 +143,7 @@ export MomentBasedDofBasis
 export get_face_own_nodes
 export get_face_nodes
 
+export linear_combination
 export test_lincom_dofvecs
 
 export VERTEX1
@@ -166,6 +167,7 @@ export CDConformity
 export SerendipityRefFE
 export RaviartThomasRefFE
 export NedelecRefFE
+export ModalC0RefFE
 
 include("Polytopes.jl")
 

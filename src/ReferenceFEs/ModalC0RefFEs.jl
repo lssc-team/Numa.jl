@@ -1,3 +1,21 @@
+"""
+  ModalC0RefFE(::Type{T},p::Polytope{D},orders) where {T,D}
+
+Returns an instance of `GenericRefFE{:ModalC0}` representing a ReferenceFE with
+Modal C0-continuous shape functions (multivariate scalar-valued, vector-valued,
+or tensor-valued, iso- or aniso-tropic).
+
+For more details about the shape functions, see Section 1.1.5 in
+
+Ern, A., & Guermond, J. L. (2013). Theory and practice of finite elements
+(Vol. 159). Springer Science & Business Media.
+
+and references therein.
+
+The constructor is only implemented for for n-cubes and the minimum order in
+any dimension must be greater than one. The DoFs are numbered by n-faces in the
+same way as with CLagrangianRefFEs.
+"""
 function ModalC0RefFE(::Type{T},p::Polytope{D},orders) where {T,D}
 
   @notimplementedif ! is_n_cube(p)

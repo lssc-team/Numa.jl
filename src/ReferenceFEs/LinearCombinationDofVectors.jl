@@ -3,6 +3,22 @@ function linear_combination(a::AbstractMatrix{<:Number},
   LinearCombinationDofVector(a,b)
 end
 
+"""
+    struct LinearCombinationDofVector{T} <: AbstractVector{Dof}
+      change_of_basis::Matrix{T}
+      dof_basis::AbstractVector{<:Dof}
+    end
+
+Type that implements a dof basis (a) as the linear combination of a dof basis
+(b). The dofs are first evaluated at dof basis (b) (field `dof_basis`) and the
+dof values are next mapped to dof basis (a) applying a change of basis (field
+`change_of_basis`).
+
+Fields:
+
+- `change_of_basis::Matrix{T}` the matrix of the change from dof basis (b) to (a)
+- `dof_basis::AbstractVector{<:Dof}` A type representing dof basis (b)
+"""
 struct LinearCombinationDofVector{T} <: AbstractVector{Dof}
   change_of_basis::Matrix{T}
   dof_basis::AbstractVector{<:Dof}

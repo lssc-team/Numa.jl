@@ -1,5 +1,22 @@
 struct ModalC0 <: Field end
 
+"""
+    struct ModalC0Basis{D,T} <: AbstractVector{ModalC0}
+
+Type representing a basis of multivariate scalar-valued, vector-valued, or
+tensor-valued, iso- or aniso-tropic Modal C0-continuous polynomials (aka
+integrated Legendre). The fields of this `struct` are not public.
+
+See Section 1.1.5 in
+
+Ern, A., & Guermond, J. L. (2013). Theory and practice of finite elements
+(Vol. 159). Springer Science & Business Media.
+
+and references therein.
+
+This type fully implements the [`Field`](@ref) interface, with up to second
+order derivatives.
+"""
 struct ModalC0Basis{D,T} <: AbstractVector{ModalC0}
   orders::NTuple{D,Int}
   terms::Vector{CartesianIndex{D}}
@@ -13,6 +30,13 @@ end
 @inline Base.getindex(a::ModalC0Basis,i::Integer) = ModalC0()
 @inline Base.IndexStyle(::ModalC0Basis) = IndexLinear()
 
+"""
+    ModalC0Basis{D}(::Type{T}, orders::Tuple [, filter::Function, sort!::Function]) where {D,T}
+
+This version of the constructor allows to pass a tuple `orders` containing the
+polynomial order to be used in each of the `D` dimensions in order to construct
+and anisotropic tensor-product space.
+"""
 function ModalC0Basis{D}(
   ::Type{T}, orders::NTuple{D,Int}; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
@@ -20,6 +44,43 @@ function ModalC0Basis{D}(
   ModalC0Basis{D}(T,orders,terms)
 end
 
+"""
+    ModalC0Basis{D}(::Type{T}, order::Int [, filter::Function, sort!::Function]) where {D,T}
+
+Returns an instance of `ModalC0Basis` representing a multivariate Modal C0-continuous
+polynomial basis in `D` dimensions, of polynomial degree `order`, whose value is represented
+by the type `T`. The type `T` is typically `<:Number`, e.g., `Float64` for scalar-valued
+functions and `VectorValue{D,Float64}` for vector-valued ones.
+
+# Filter function
+
+The `filter` function is used to select which terms of the tensor product space
+of order `order` in `D` dimensions are to be used. If the filter is not provided,
+the full tensor-product space is used by default leading to a multivariate polynomial
+space of type Q.
+
+The signature of the filter function is
+
+    (e,order) -> Bool
+
+where `e` is a tuple of `D` integers containing the exponents of a multivariate
+monomial. The following filters are used to select well known polynomial spaces
+
+- Q space: `(e,order) -> true`
+- P space: `(e,order) -> sum(e) <= order`
+- "Serendipity" space: `(e,order) -> sum( [ i for i in e if i>1 ] ) <= order`
+
+# Sort! function
+
+The `sort!` function is used to sort the terms of the basis functions according
+to the user needs. The following sort functions have been implemented:
+
+- _sort_by_nfaces! (default): Orders the terms by the n-faces of the ReferenceFE,
+                              such that the local DoF numbering coincides with
+                              the one of Lagrangian FEs
+- _sort_by_tensor_prod!: Orders the terms by the cartesian indices of the
+                         tensor product of the 1D basis functions
+"""
 function ModalC0Basis{D}(
   ::Type{T}, order::Int; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
 
@@ -29,15 +90,16 @@ end
 
 # API
 
-function get_exponents(b::ModalC0Basis)
-  indexbase = 1
-  [Tuple(t) .- indexbase for t in b.terms]
-end
-
+"""
+    get_order(b::ModalC0Basis)
+"""
 function get_order(b::ModalC0Basis)
   maximum(b.orders)
 end
 
+"""
+    get_orders(b::ModalC0Basis)
+"""
 function get_orders(b::ModalC0Basis)
   b.orders
 end

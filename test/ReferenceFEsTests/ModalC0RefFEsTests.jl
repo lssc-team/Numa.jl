@@ -40,7 +40,7 @@ function test_function_interpolation(::Type{T},order,C,u) where T
   test_single_field_fe_space(V)
   uh = interpolate(u,V)
   Ω = Triangulation(model)
-  degree = order
+  degree = 2*order
   dΩ = LebesgueMeasure(Ω,degree)
   l2(u) = sqrt(sum( ∫( u⊙u )*dΩ ))
   e = u - uh
@@ -48,7 +48,7 @@ function test_function_interpolation(::Type{T},order,C,u) where T
   @test el2 < 1.0e-9
 end
 
-order = 1; T = Float64; C = :H1; u(x) = x[1]+x[2]
+order = 2; T = Float64; C = :H1; u(x) = (x[1]+x[2])^2
 test_function_interpolation(T,order,C,u)
 
 order = 1; T = Float64; C = :L2; u(x) = x[1]+x[2]
@@ -62,7 +62,22 @@ domain = (0,1,0,1,0,1)
 partition = (2,2,2)
 model = CartesianDiscreteModel(domain,partition)
 
-order = 2; T = Float64; C = :H1; u(x) = (x[1]+x[2])*(x[1]+x[2])
+order = 1; T = Float64; C = :H1; u(x) = x[1]+x[2]+x[3]
 test_function_interpolation(T,order,C,u)
+
+# Inspect operator matrix to check if L2-scalar product of
+# gradients of bubble functions satisfy Kronecker's delta
+# domain = (0,1)
+# partition = (1)
+# model = CartesianDiscreteModel(domain,partition)
+# order = 6; T = Float64; C = :H1;
+# reffe = ReferenceFE(:ModalC0,T,order)
+# V = FESpace(model,reffe,conformity=C)
+# Ω = Triangulation(model)
+# degree = 2*order
+# dΩ = LebesgueMeasure(Ω,degree)
+# a(u,v) = ∫( ∇(v)⊙∇(u) )*dΩ
+# b(v) = 0.0
+# op = AffineFEOperator(a,b,V,V)
 
 end # module
