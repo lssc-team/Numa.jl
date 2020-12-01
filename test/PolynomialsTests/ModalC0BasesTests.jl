@@ -9,7 +9,7 @@ using Gridap.Polynomials
 import Gridap.Polynomials: _legendre
 import Gridap.Fields: Broadcasting
 
-@test all(map(i->map(x->_legendre(x,Val{i}()),(-1,1))==(1-2*(i%2),1),0:4))
+@test all(map(i->map(x->_legendre(x,Val{i}()),(-1,1))==(1-2*(i%2),1),0:10))
 
 # REMARK: In all test cases below
 # _sort_by_tensor_prod! == _sort_by_n_faces!
