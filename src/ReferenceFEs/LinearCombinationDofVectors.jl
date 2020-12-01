@@ -14,13 +14,18 @@ end
 @inline Base.IndexStyle(::LinearCombinationDofVector) = IndexLinear()
 
 function return_cache(b::LinearCombinationDofVector,field)
-  vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
-  return_cache(b.dof_basis,vals_to_lincom_vals)
+  # vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
+  # return_cache(b.dof_basis,vals_to_lincom_vals)
+  c, cf = return_cache(b.dof_basis,field)
+  c, cf, return_cache(*,b.change_of_basis,c)
 end
 
 @inline function evaluate!(cache,b::LinearCombinationDofVector,field)
-  vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
-  evaluate!(cache,b.dof_basis,vals_to_lincom_vals)
+  # vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
+  # evaluate!(cache,b.dof_basis,vals_to_lincom_vals)
+  c, cf, cc = cache
+  vals = evaluate!(cache,b.dof_basis,field)
+  evaluate!(cc,*,b.change_of_basis,vals)
 end
 
 function test_lincom_dofvecs(::Type{T},p::Polytope{D},orders::NTuple{D,Int}) where {D,T}
