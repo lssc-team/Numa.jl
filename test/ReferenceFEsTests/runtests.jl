@@ -30,4 +30,6 @@ using Test
 
 @testset "CDLagrangianRefFEs" begin include("CDLagrangianRefFEsTests.jl") end
 
+@testset "ModalC0RefFEs" begin include("ModalC0RefFEsTests.jl") end
+
 end # module

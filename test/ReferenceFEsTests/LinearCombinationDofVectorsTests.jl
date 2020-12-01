@@ -1,11 +1,6 @@
 module LinearCombinationDofVectorsTests
 
-using Test
-using Gridap.Helpers
 using Gridap.TensorValues
-using Gridap.Fields
-using Gridap.Arrays
-using Gridap.Polynomials
 using Gridap.ReferenceFEs
 
 # using BenchmarkTools
@@ -21,7 +16,7 @@ test_lincom_dofvecs(Float64,SEGMENT,order)
 orders = (2,3)
 test_lincom_dofvecs(Float64,QUAD,orders)
 
-order = 2
+order = 1
 test_lincom_dofvecs(VectorValue{2,Float64},QUAD,order)
 
 order = 1
@@ -37,8 +32,5 @@ test_lincom_dofvecs(VectorValue{3,Float64},HEX,order)
 # lincom_dofvals = linear_combination(change,predofs)
 # cache = return_cache(lincom_dofvals,mb)
 # @btime evaluate!($cache,$lincom_dofvals,$mb)
-
-order = 1
-reffe = ReferenceFE(QUAD,:ModalC0,Float64,order)
 
 end # module
