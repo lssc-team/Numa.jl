@@ -1,11 +1,30 @@
 module LinearCombinationDofVectorsTests
 
+using Test
+using Gridap.Helpers
 using Gridap.TensorValues
 using Gridap.ReferenceFEs
 
-# using BenchmarkTools
-# import Gridap.ReferenceFEs: compute_nodes
-# import Gridap.ReferenceFEs: return_cache, evaluate!
+using BenchmarkTools
+import LinearAlgebra: I
+import Gridap.Polynomials: ModalC0Basis
+import Gridap.ReferenceFEs: compute_nodes
+import Gridap.ReferenceFEs: evaluate
+
+function test_lincom_dofvecs(::Type{T},p::Polytope{D},orders::NTuple{D,Int}) where {D,T}
+  mb = ModalC0Basis{D}(T,orders)
+  nodes, _ = compute_nodes(p,mb.orders)
+  predofs = LagrangianDofBasis(T,nodes)
+  change = inv(evaluate(predofs,mb))
+  lincom_dofvals = linear_combination(change,predofs)
+  id = Matrix{eltype(T)}(I,size(mb)[1],size(mb)[1])
+  test_dof_array(lincom_dofvals,mb,id,cmp=(≈))
+end
+
+function test_lincom_dofvecs(::Type{T},p::Polytope{D},order::Int) where {D,T}
+  orders = tfill(order,Val{D}())
+  test_lincom_dofvecs(T,p,orders)
+end
 
 order = 1
 test_lincom_dofvecs(Float64,SEGMENT,order)

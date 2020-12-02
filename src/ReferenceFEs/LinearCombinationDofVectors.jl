@@ -43,18 +43,3 @@ end
   vals = evaluate!(cache,b.dof_basis,field)
   evaluate!(cc,*,b.change_of_basis,vals)
 end
-
-function test_lincom_dofvecs(::Type{T},p::Polytope{D},orders::NTuple{D,Int}) where {D,T}
-  mb = ModalC0Basis{D}(T,orders)
-  nodes, _ = compute_nodes(p,mb.orders)
-  predofs = LagrangianDofBasis(T,nodes)
-  change = inv(evaluate(predofs,mb))
-  lincom_dofvals = linear_combination(change,predofs)
-  id = Matrix{eltype(T)}(I,size(mb)[1],size(mb)[1])
-  @test id ≈ evaluate(lincom_dofvals,mb)
-end
-
-function test_lincom_dofvecs(::Type{T},p::Polytope{D},order::Int) where {D,T}
-  orders = tfill(order,Val{D}())
-  test_lincom_dofvecs(T,p,orders)
-end

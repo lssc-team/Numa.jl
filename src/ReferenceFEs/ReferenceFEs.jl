@@ -144,7 +144,6 @@ export get_face_own_nodes
 export get_face_nodes
 
 export linear_combination
-export test_lincom_dofvecs
 
 export VERTEX1
 export SEG2
