@@ -9,6 +9,7 @@ module Polynomials
 
 using DocStringExtensions
 using LinearAlgebra: mul!
+using PolynomialBases: jacobi, jacobi_and_derivative
 using Gridap.Helpers
 using Gridap.Arrays
 using Gridap.TensorValues
@@ -20,6 +21,7 @@ import Gridap.Arrays: return_type
 
 export MonomialBasis
 export ModalC0Basis
+export ModifiedModalC0Basis
 export QGradMonomialBasis
 export QCurlGradMonomialBasis
 export get_exponents
@@ -31,6 +33,8 @@ export num_terms
 include("MonomialBases.jl")
 
 include("ModalC0Bases.jl")
+
+include("ModifiedModalC0Bases.jl")
 
 include("QGradMonomialBases.jl")
 

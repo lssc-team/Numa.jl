@@ -38,9 +38,9 @@ polynomial order to be used in each of the `D` dimensions in order to construct
 and anisotropic tensor-product space.
 """
 function ModalC0Basis{D}(
-  ::Type{T}, orders::NTuple{D,Int}; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
+  ::Type{T}, orders::NTuple{D,Int}; filter::Function=_q_filter_mc0, sort!::Function=_sort_by_nfaces!) where {D,T}
 
-  terms = _define_terms_il(filter, sort!, orders)
+  terms = _define_terms_mc0(filter, sort!, orders)
   ModalC0Basis{D}(T,orders,terms)
 end
 
@@ -82,7 +82,7 @@ to the user needs. The following sort functions have been implemented:
                          tensor product of the 1D basis functions
 """
 function ModalC0Basis{D}(
-  ::Type{T}, order::Int; filter::Function=_q_filter_il, sort!::Function=_sort_by_nfaces!) where {D,T}
+  ::Type{T}, order::Int; filter::Function=_q_filter_mc0, sort!::Function=_sort_by_nfaces!) where {D,T}
 
   orders = tfill(order,Val{D}())
   ModalC0Basis{D}(T,orders;filter=filter,sort! = sort!)
@@ -129,7 +129,7 @@ function evaluate!(cache,f::ModalC0Basis{D,T},x::AbstractVector{<:Point}) where 
   setsize!(c,(D,n))
   for i in 1:np
     @inbounds xi = x[i]
-    _evaluate_nd_il!(v,xi,f.orders,f.terms,c)
+    _evaluate_nd_mc0!(v,xi,f.orders,f.terms,c)
     for j in 1:ndof
       @inbounds r[i,j] = v[j]
     end
@@ -171,7 +171,7 @@ function evaluate!(
   setsize!(g,(D,n))
   for i in 1:np
     @inbounds xi = x[i]
-    _gradient_nd_il!(v,xi,f.orders,f.terms,c,g,T)
+    _gradient_nd_mc0!(v,xi,f.orders,f.terms,c,g,T)
     for j in 1:ndof
       @inbounds r[i,j] = v[j]
     end
@@ -215,7 +215,7 @@ function evaluate!(
   setsize!(h,(D,n))
   for i in 1:np
     @inbounds xi = x[i]
-    _hessian_nd_il!(v,xi,f.orders,f.terms,c,g,h,T)
+    _hessian_nd_mc0!(v,xi,f.orders,f.terms,c,g,h,T)
     for j in 1:ndof
       @inbounds r[i,j] = v[j]
     end
@@ -225,7 +225,7 @@ end
 
 # Helpers
 
-_q_filter_il(e,o) = true
+_q_filter_mc0(e,o) = true
 
 _sort_by_tensor_prod!(terms,orders) = terms
 
@@ -260,7 +260,7 @@ function _sort_by_nfaces!(terms::Vector{CartesianIndex{D}},orders) where D
   permute!(terms,P)
 end
 
-function _define_terms_il(filter,sort!,orders)
+function _define_terms_mc0(filter,sort!,orders)
   terms = _define_terms(filter,orders)
   sort!(terms,orders)
 end
@@ -281,7 +281,7 @@ _legendre(ξ,::Val{8}) = 0.0078125*(6435*ξ^8-12012*ξ^6+6930*ξ^4-1260*ξ^2+35)
 _legendre(ξ,::Val{9}) = 0.0078125*(12155*ξ^9-25740*ξ^7+18018*ξ^5-4620*ξ^3+315*ξ)
 _legendre(ξ,::Val{10}) = 0.00390625*(46189*ξ^10-109395*ξ^8+90090*ξ^6-30030*ξ^4+3465*ξ^2-63)
 
-function _evaluate_1d_il!(v::AbstractMatrix{T},x,order,d) where T
+function _evaluate_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
   z = one(T)
@@ -293,7 +293,7 @@ function _evaluate_1d_il!(v::AbstractMatrix{T},x,order,d) where T
   end
 end
 
-function _gradient_1d_il!(v::AbstractMatrix{T},x,order,d) where T
+function _gradient_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
   z = one(T)
@@ -305,7 +305,7 @@ function _gradient_1d_il!(v::AbstractMatrix{T},x,order,d) where T
   end
 end
 
-function _hessian_1d_il!(v::AbstractMatrix{T},x,order,d) where T
+function _hessian_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
   z = one(T)
@@ -317,7 +317,7 @@ function _hessian_1d_il!(v::AbstractMatrix{T},x,order,d) where T
   end
 end
 
-function _evaluate_nd_il!(
+function _evaluate_nd_mc0!(
   v::AbstractVector{V},
   x,
   orders,
@@ -326,7 +326,7 @@ function _evaluate_nd_il!(
 
   dim = D
   for d in 1:dim
-    _evaluate_1d_il!(c,x,orders[d],d)
+    _evaluate_1d_mc0!(c,x,orders[d],d)
   end
 
   o = one(T)
@@ -340,13 +340,13 @@ function _evaluate_nd_il!(
       @inbounds s *= c[d,ci[d]]
     end
 
-    k = _set_value_il!(v,s,k,l)
+    k = _set_value_mc0!(v,s,k,l)
 
   end
 
 end
 
-@inline function _set_value_il!(v::AbstractVector{V},s::T,k,l) where {V,T}
+@inline function _set_value_mc0!(v::AbstractVector{V},s::T,k,l) where {V,T}
   m = zero(Mutable(V))
   z = zero(T)
   js = eachindex(m)
@@ -361,12 +361,12 @@ end
   k+1
 end
 
-@inline function _set_value_il!(v::AbstractVector{<:Real},s,k,l)
+@inline function _set_value_mc0!(v::AbstractVector{<:Real},s,k,l)
   @inbounds v[k] = s
   k+1
 end
 
-function _gradient_nd_il!(
+function _gradient_nd_mc0!(
   v::AbstractVector{G},
   x,
   orders,
@@ -377,8 +377,8 @@ function _gradient_nd_il!(
 
   dim = D
   for d in 1:dim
-    _evaluate_1d_il!(c,x,orders[d],d)
-    _gradient_1d_il!(g,x,orders[d],d)
+    _evaluate_1d_mc0!(c,x,orders[d],d)
+    _gradient_1d_mc0!(g,x,orders[d],d)
   end
 
   z = zero(Mutable(VectorValue{D,T}))
@@ -402,20 +402,20 @@ function _gradient_nd_il!(
       end
     end
 
-    k = _set_gradient_il!(v,s,k,l,V)
+    k = _set_gradient_mc0!(v,s,k,l,V)
 
   end
 
 end
 
-@inline function _set_gradient_il!(
+@inline function _set_gradient_mc0!(
   v::AbstractVector{G},s,k,l,::Type{<:Real}) where G
 
   @inbounds v[k] = s
   k+1
 end
 
-@inline function _set_gradient_il!(
+@inline function _set_gradient_mc0!(
   v::AbstractVector{G},s,k,l,::Type{V}) where {V,G}
 
   T = eltype(s)
@@ -435,7 +435,7 @@ end
   k+1
 end
 
-function _hessian_nd_il!(
+function _hessian_nd_mc0!(
   v::AbstractVector{G},
   x,
   orders,
@@ -447,9 +447,9 @@ function _hessian_nd_il!(
 
   dim = D
   for d in 1:dim
-    _evaluate_1d_il!(c,x,orders[d],d)
-    _gradient_1d_il!(g,x,orders[d],d)
-    _hessian_1d_il!(h,x,orders[d],d)
+    _evaluate_1d_mc0!(c,x,orders[d],d)
+    _gradient_1d_mc0!(g,x,orders[d],d)
+    _hessian_1d_mc0!(h,x,orders[d],d)
   end
 
   z = zero(Mutable(TensorValue{D,D,T}))
@@ -477,7 +477,7 @@ function _hessian_nd_il!(
       end
     end
 
-    k = _set_gradient_il!(v,s,k,l,V)
+    k = _set_gradient_mc0!(v,s,k,l,V)
 
   end
 

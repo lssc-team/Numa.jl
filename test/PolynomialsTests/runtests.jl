@@ -6,6 +6,8 @@ using Test
 
 @testset "ModalC0Bases" begin include("ModalC0BasesTests.jl") end
 
+@testset "ModifiedModalC0Bases" begin include("ModifiedModalC0BasesTests.jl") end
+
 @testset "QGradMonomialBases" begin include("QGradMonomialBasesTests.jl") end
 
 @testset "QCurlGradMonomialBases" begin include("QCurlGradMonomialBasesTests.jl") end
