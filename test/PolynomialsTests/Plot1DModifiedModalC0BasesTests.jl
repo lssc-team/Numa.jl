@@ -28,8 +28,8 @@ s1 = LSlider(scene,range=1:length(ξ),startvalue=1,
 s2 = LSlider(scene,range=1:length(ξ),startvalue=1,
              color_inactive=RGBf0(1.0,1.0,1.0))
 
-axM = layout[1, 1] = LAxis(scene)
-axL = layout[1, 2] = LAxis(scene)
+axM = layout[1,1] = LAxis(scene)
+axL = layout[1,2] = LAxis(scene)
 cols = [:red, :blue, :green, :orange, :purple]
 lins = [nothing, :dash, :dot, :dashdot, :dashdotdot]
 
@@ -99,16 +99,14 @@ line4 = lines!(axM,(0,0),color=cols[4],linestyle=lins[4],linewidth=2)
 line5 = lines!(axM,(0,0),color=cols[5],linestyle=lins[5],linewidth=2)
 
 axM.xticks = 0.0:0.1:1.0
-# ylims!(axM,-37,37)
-# axM.yticks = -35:10:35
 axM.xlabel="ξ"
-axM.ylabel="Modal φ(ξ)"
+axM.ylabel="φ(ξ)"
+axM.title="Modal 1D Basis"
 
 axL.xticks = 0.0:0.1:1.0
-# ylims!(axL,-37,37)
-# axL.yticks = -35:10:35
 axL.xlabel="ξ"
-axL.ylabel="Lagrangian φ(ξ)"
+axL.ylabel="φ(ξ)"
+axL.title="Lagrangian 1D Basis"
 
 legmarkers = [ line1, line2, line3, line4, line5 ]
 legnames = [ "φ₁", "φ₂", "φ₃", "φ₄", "φ₅" ]
