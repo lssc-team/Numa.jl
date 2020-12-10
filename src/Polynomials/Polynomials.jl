@@ -9,7 +9,6 @@ module Polynomials
 
 using DocStringExtensions
 using LinearAlgebra: mul!
-using PolynomialBases: jacobi, jacobi_and_derivative
 using Gridap.Helpers
 using Gridap.Arrays
 using Gridap.TensorValues
