@@ -16,12 +16,17 @@ The constructor is only implemented for for n-cubes and the minimum order in
 any dimension must be greater than one. The DoFs are numbered by n-faces in the
 same way as with CLagrangianRefFEs.
 """
-function ModalC0RefFE(::Type{T},p::Polytope{D},orders) where {T,D}
+function ModalC0RefFE(
+  ::Type{T},
+  p::Polytope{D},
+  orders;
+  ξ₀::Point{D,V}=Point{D,eltype(T)}(tfill(zero(eltype(T)),Val{D}())),
+  ξ₁::Point{D,V}=Point{D,eltype(T)}(tfill(one(eltype(T)),Val{D}())) ) where {T,D,V}
 
   @notimplementedif ! is_n_cube(p)
   @notimplementedif minimum(orders) < one(eltype(orders))
 
-  shapefuns = ModalC0Basis{D}(T,orders)
+  shapefuns = ModifiedModalC0Basis{D}(T,orders,ξ₀=ξ₀,ξ₁=ξ₁)
   nodes, face_own_nodes = compute_nodes(p,shapefuns.orders)
   predofs = LagrangianDofBasis(T,nodes)
   ndofs = length(predofs.dof_to_node)
@@ -52,9 +57,10 @@ function ReferenceFE(
   polytope::Polytope,
   ::Val{:ModalC0},
   ::Type{T},
-  orders::Union{Integer,Tuple{Vararg{Integer}}}) where T
+  orders::Union{Integer,Tuple{Vararg{Integer}}};
+  kwargs...) where T
 
-  ModalC0RefFE(T,polytope,orders)
+  ModalC0RefFE(T,polytope,orders;kwargs...)
 end
 
 function Conformity(reffe::GenericRefFE{:ModalC0},sym::Symbol)
