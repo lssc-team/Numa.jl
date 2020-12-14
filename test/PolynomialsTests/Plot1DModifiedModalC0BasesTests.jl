@@ -7,7 +7,7 @@ using Makie
 using AbstractPlotting.MakieLayout
 
 outer_padding = 30
-scene, layout = layoutscene(outer_padding, resolution = (1200, 600),
+scene, layout = layoutscene(outer_padding, resolution = (900, 600),
                             backgroundcolor = RGBf0(0.99, 0.99, 0.99))
 
 T = Float64
@@ -107,6 +107,12 @@ axL.xticks = 0.0:0.1:1.0
 axL.xlabel="ξ"
 axL.ylabel="φ(ξ)"
 axL.title="Lagrangian 1D Basis"
+
+axM.xticksize = 2.0; axM.yticksize = 2.0
+axM.xticklabelsize = 12.0; axM.yticklabelsize = 12.0
+
+axL.xticksize = 2.0; axL.yticksize = 2.0
+axL.xticklabelsize = 12.0; axL.yticklabelsize = 12.0
 
 legmarkers = [ line1, line2, line3, line4, line5 ]
 legnames = [ "φ₁", "φ₂", "φ₃", "φ₄", "φ₅" ]
