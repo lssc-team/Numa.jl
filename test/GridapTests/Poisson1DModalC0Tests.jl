@@ -150,4 +150,7 @@ on(menu.selection) do s
   fun[] = s
 end
 
-scene
+record(scene,"poisson1DModalC0.mp4",length(ξ₁):-1:1; framerate = 1) do i
+  s.value = i
+end
+# scene

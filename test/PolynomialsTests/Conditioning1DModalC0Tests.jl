@@ -75,8 +75,11 @@ cols = [:red, :blue, :green, :orange, :purple]
 lins = [nothing, :dash, :dot, :dashdot, :dashdotdot]
 
 line1 = lines!(ax,data,color=cols[1],linestyle=lins[1],linewidth=2)
+limits!(ax, -0.05, 1.05, -1, 11)
+ax.xticks = 0.0:0.25:1.0
+ax.yticks = 0.0:2.0:10.0
 ax.xlabel="ξ₁"
-ax.ylabel="p"
+ax.ylabel="r"
 ax.title="k(A) = O(Nʳ) where r = r(ξ₁)"
 
 save("conds1DModalC0.png", scene)
