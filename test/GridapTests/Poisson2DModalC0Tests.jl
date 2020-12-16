@@ -31,7 +31,7 @@ function run(order::Int,ξ₁::Real,η₁::Real)
   V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt))
   U = TrialFESpace(V)
 
-  γ = 10.0*order^2
+  γ = 2.5*order^2
   a(u,v) =
     ∫( ∇(v)⋅∇(u) )*dΩ +
     ∫( (γ/h)*v*u  - v*(n_Γ⋅∇(u)) - (n_Γ⋅∇(v))*u )*dΓ
@@ -120,7 +120,7 @@ axE.ylabel="log10(Abs error)"
 limits!(axC, 0.15, 1.35, -1.0, 17.0)
 axC.xticks = 0.25:0.25:1.25
 axC.yticks = 0.0:2.0:16.0
-axC.xlabel="log10(N)"
+axC.xlabel="log10(sqrt(N))"
 axC.ylabel="log10(Condition number)"
 
 axE.xticksize = 2.0; axE.yticksize = 2.0
@@ -135,4 +135,7 @@ leg = LLegend( scene, legmarkers, legnames, orientation = :horizontal )
 layout[2, :] =
   hbox!( LText(scene, lift(x -> "ξ₁: $(ξ₁[x])",s.value), width = 60), s, leg )
 
+# record(scene,"poisson2DModalC0.mp4",length(ξ₁):-1:1; framerate = 1) do i
+#   s.value = i
+# end
 scene
