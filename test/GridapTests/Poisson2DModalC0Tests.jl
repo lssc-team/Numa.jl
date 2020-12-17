@@ -28,21 +28,28 @@ function run(order::Int,ξ₁::Real,η₁::Real)
   n_Γ = get_normal_vector(Γ)
 
   pt = Fields.Point(ξ₁,η₁)
-  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt))
-  U = TrialFESpace(V)
+  # V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt))
+  # U = TrialFESpace(V)
+  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt),dirichlet_tags=[1,2,3,5,7])
+  U = TrialFESpace(V,u)
 
-  γ = 2.5*order^2
-  a(u,v) =
-    ∫( ∇(v)⋅∇(u) )*dΩ +
-    ∫( (γ/h)*v*u  - v*(n_Γ⋅∇(u)) - (n_Γ⋅∇(v))*u )*dΓ
-  l(v) =
-    ∫( v*f )*dΩ +
-    ∫( (γ/h)*v*u - (n_Γ⋅∇(v))*u )*dΓ
+  # γ = 2.5*order^2
+  # a(u,v) =
+  #   ∫( ∇(v)⋅∇(u) )*dΩ +
+  #   ∫( (γ/h)*v*u  - v*(n_Γ⋅∇(u)) - (n_Γ⋅∇(v))*u )*dΓ
+  # l(v) =
+  #   ∫( v*f )*dΩ +
+  #   ∫( (γ/h)*v*u - (n_Γ⋅∇(v))*u )*dΓ
+
+  a(u,v) = ∫( ∇(u)⋅∇(v) )*dΩ
+  l(v) = ∫( f*v )*dΩ
 
   op = AffineFEOperator(a,l,U,V)
   kop = cond(Array(get_matrix(op)))
 
   uh = solve(op)
+
+  # writevtk(Ω,"results",nsubcells=24,cellfields=["uh"=>uh])
 
   e = u - uh
   l2(u) = sqrt(sum( ∫( u⊙u )*dΩ ))
@@ -111,15 +118,15 @@ line1 = lines!(axE,datal2,color=cols[1],linestyle=lins[1],linewidth=2)
 line2 = lines!(axE,datah1,color=cols[2],linestyle=lins[2],linewidth=2)
 line3 = lines!(axC,datacn,color=cols[3],linestyle=lins[3],linewidth=2)
 
-limits!(axE, 0.15, 1.35, -16, 1)
-axE.xticks = 0.25:0.25:1.25
+limits!(axE, -0.15, 1.15, -16, 1)
+axE.xticks = 0.0:0.25:1.0
 axE.yticks = -15.0:3.0:0.0
 axE.xlabel="log10(N)"
 axE.ylabel="log10(Abs error)"
 
-limits!(axC, 0.15, 1.35, -1.0, 17.0)
-axC.xticks = 0.25:0.25:1.25
-axC.yticks = 0.0:2.0:16.0
+limits!(axC, -0.15, 1.15, -1, 15)
+axC.xticks = 0.0:0.25:1.0
+axC.yticks = 0.0:2.0:14.0
 axC.xlabel="log10(sqrt(N))"
 axC.ylabel="log10(Condition number)"
 
