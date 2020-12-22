@@ -27,9 +27,9 @@ function run(order::Int,β::Real,ξ₁::Real,η₁::Real)
   n_Γ = get_normal_vector(Γ)
 
   pt = Fields.Point(ξ₁,η₁)
-  # V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt))
+  # V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,type=:modified,ξ₁=pt))
   # U = TrialFESpace(V)
-  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt),dirichlet_tags=[1,2,3,5,7])
+  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,type=:modified,ξ₁=pt),dirichlet_tags=[1,2,3,5,7])
   U = TrialFESpace(V,u)
 
   # γ = 2.5*order^2

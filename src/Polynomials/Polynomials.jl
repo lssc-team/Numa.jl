@@ -21,6 +21,7 @@ import Gridap.Arrays: return_type
 export MonomialBasis
 export ModalC0Basis
 export ModifiedModalC0Basis
+export AgFEMModalC0Basis
 export QGradMonomialBasis
 export QCurlGradMonomialBasis
 export get_exponents
@@ -34,6 +35,8 @@ include("MonomialBases.jl")
 include("ModalC0Bases.jl")
 
 include("ModifiedModalC0Bases.jl")
+
+include("AgFEMModalC0Bases.jl")
 
 include("QGradMonomialBases.jl")
 

@@ -285,7 +285,7 @@ function _evaluate_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
   z = one(T)
-  @inbounds v[d,1] = 1 - x[d]
+  @inbounds v[d,1] = z - x[d]
   @inbounds v[d,2] = x[d]
   ξ = -1 + 2*x[d]
   for i in 3:n
@@ -297,8 +297,8 @@ function _gradient_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
   z = one(T)
-  @inbounds v[d,1] = -1
-  @inbounds v[d,2] = 1
+  @inbounds v[d,1] = -z
+  @inbounds v[d,2] = z
   ξ = -1 + 2*x[d]
   for i in 3:n
     @inbounds v[d,i] = sqrt(2*i-3)*_legendre(ξ,Val{i-2}())
@@ -308,9 +308,9 @@ end
 function _hessian_1d_mc0!(v::AbstractMatrix{T},x,order,d) where T
   @assert order > 0
   n = order + 1
-  z = one(T)
-  @inbounds v[d,1] = 0
-  @inbounds v[d,2] = 0
+  z = zero(T)
+  @inbounds v[d,1] = z
+  @inbounds v[d,2] = z
   ξ = -1 + 2*x[d]
   for i in 3:n
     @inbounds v[d,i] = sqrt(2*i-3)*2*((i-2)*_legendre(ξ,Val{i-3}())+ξ*v[d,i-1]/(2*sqrt(2*i-5)))

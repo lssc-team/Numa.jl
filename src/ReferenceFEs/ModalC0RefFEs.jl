@@ -20,13 +20,19 @@ function ModalC0RefFE(
   ::Type{T},
   p::Polytope{D},
   orders;
+  type::Symbol=:agfem,
   ξ₀::Point{D,V}=Point{D,eltype(T)}(tfill(zero(eltype(T)),Val{D}())),
   ξ₁::Point{D,V}=Point{D,eltype(T)}(tfill(one(eltype(T)),Val{D}())) ) where {T,D,V}
 
   @notimplementedif ! is_n_cube(p)
   @notimplementedif minimum(orders) < one(eltype(orders))
 
-  shapefuns = ModifiedModalC0Basis{D}(T,orders,ξ₀=ξ₀,ξ₁=ξ₁)
+  if ( type == :modified )
+    shapefuns = ModifiedModalC0Basis{D}(T,orders,ξ₀=ξ₀,ξ₁=ξ₁)
+  else
+    shapefuns = AgFEMModalC0Basis{D}(T,orders)
+  end
+
   nodes, face_own_nodes = compute_nodes(p,shapefuns.orders)
   predofs = LagrangianDofBasis(T,nodes)
   ndofs = length(predofs.dof_to_node)

@@ -42,7 +42,7 @@ function run(order::Int,ξ₁::Real)
   # n_Γ = get_normal_vector(Γ)
 
   pt = Fields.Point(ξ₁)
-  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt),dirichlet_tags=[1])
+  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,type=:modified,ξ₁=pt),dirichlet_tags=[1])
   U = TrialFESpace(V,u)
 
   # γ = 10.0*order^2

@@ -23,7 +23,7 @@ function run(order::Int,ξ₁::Real)
   dΩ = LebesgueMeasure(Ω,degree)
 
   pt = Fields.Point(ξ₁)
-  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,ξ₁=pt),dirichlet_tags=[1])
+  V = TestFESpace(model,ReferenceFE(:ModalC0,Float64,order,type=:modified,ξ₁=pt),dirichlet_tags=[1])
   U = TrialFESpace(V,u)
 
   a(u,v) = ∫( ∇(u)⋅∇(v) )*dΩ
