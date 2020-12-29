@@ -40,8 +40,6 @@ function ModalC0RefFE(
   nodes, face_own_nodes = compute_nodes(p,shapefuns.orders)
   predofs = LagrangianDofBasis(T,nodes)
   ndofs = length(predofs.dof_to_node)
-  change = inv(evaluate(predofs,shapefuns))
-  dofs = linear_combination(change,predofs)
 
   nnodes = length(predofs.nodes)
   reffaces = compute_lagrangian_reffaces(T,p,shapefuns.orders)
@@ -55,8 +53,7 @@ function ModalC0RefFE(
   GenericRefFE{ModalC0}(
     ndofs,
     p,
-    shapefuns,
-    dofs,
+    predofs,
     GradConformity(),
     lag_reffe,
     face_dofs,
