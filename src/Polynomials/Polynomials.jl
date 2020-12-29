@@ -24,6 +24,7 @@ export ModifiedModalC0Basis
 export AgFEMModalC0Basis
 export QGradMonomialBasis
 export QCurlGradMonomialBasis
+export PCurlGradMonomialBasis
 export get_exponents
 
 export get_order
@@ -41,5 +42,7 @@ include("AgFEMModalC0Bases.jl")
 include("QGradMonomialBases.jl")
 
 include("QCurlGradMonomialBases.jl")
+
+include("PCurlGradMonomialBases.jl")
 
 end # module

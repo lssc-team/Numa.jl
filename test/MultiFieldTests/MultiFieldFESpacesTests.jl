@@ -24,8 +24,8 @@ trian = get_triangulation(model)
 degree = order
 quad = CellQuadrature(trian,degree)
 
-V = TestFESpace(model,ReferenceFE(:Lagrangian,Float64,order);conformity=:H1)
-Q = TestFESpace(model,ReferenceFE(:Lagrangian,Float64,order-1),conformity=:L2)
+V = TestFESpace(model,ReferenceFE(lagrangian,Float64,order);conformity=:H1)
+Q = TestFESpace(model,ReferenceFE(lagrangian,Float64,order-1),conformity=:L2)
 
 U = TrialFESpace(V)
 P = TrialFESpace(Q)
@@ -46,7 +46,7 @@ du, dp = dx
 
 cellmat = integrate(dv*du,quad)
 cellvec = integrate(dv*2,quad)
-cellids = get_cell_id(trian)
+cellids = get_cell_to_bgcell(trian)
 cellmatvec = pair_arrays(cellmat,cellvec)
 @test isa(cellmat, LazyArray{<:Fill{<:BlockArrayCooMap}})
 @test is_nonzero_block(cellmat[1],1,1)

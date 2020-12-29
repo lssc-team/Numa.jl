@@ -27,8 +27,8 @@ quad = CellQuadrature(trian,degree)
 trian_Γ = SkeletonTriangulation(model)
 quad_Γ = CellQuadrature(trian_Γ,degree)
 
-V = TestFESpace(model,ReferenceFE(:Lagrangian,Float64,order);conformity=:H1)
-Q = TestFESpace(model,ReferenceFE(:Lagrangian,Float64,order-1),conformity=:L2)
+V = TestFESpace(model,ReferenceFE(lagrangian,Float64,order);conformity=:H1)
+Q = TestFESpace(model,ReferenceFE(lagrangian,Float64,order-1),conformity=:L2)
 
 U = TrialFESpace(V)
 P = TrialFESpace(Q)
@@ -47,7 +47,7 @@ du, dp = dx
 
 cellmat = integrate(dv*du,quad)
 cellvec = integrate(dv*2,quad)
-cellids = get_cell_id(trian)
+cellids = get_cell_to_bgcell(trian)
 cellmatvec = pair_arrays(cellmat,cellvec)
 
 #cellmat_Γ = integrate(  jump(dv)*dp.⁺ + mean(dq)*jump(dp), quad_Γ)
@@ -55,7 +55,7 @@ cellmat_Γ = integrate(  jump(dv)*mean(du) + jump(∇(dq))⋅jump(∇(dp)), quad
 
 cellvec_Γ = integrate(  jump(dv) + mean(dq),quad_Γ)
 cellmatvec_Γ = pair_arrays(cellmat_Γ,cellvec_Γ)
-cellids_Γ = get_cell_id(trian_Γ)
+cellids_Γ = get_cell_to_bgcell(trian_Γ)
 
 assem = SparseMatrixAssembler(SparseMatrixCSR{0,Float64,Int},X,Y)
 

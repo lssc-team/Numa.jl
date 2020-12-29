@@ -99,6 +99,7 @@ export test_dof_array
 # export evaluate_dof_array
 
 export ReferenceFE
+export ReferenceFEName
 export GenericRefFE
 export get_polytope
 export get_prebasis
@@ -167,6 +168,14 @@ export SerendipityRefFE
 export RaviartThomasRefFE
 export NedelecRefFE
 export ModalC0RefFE
+
+export Lagrangian
+export RaviartThomas
+export Nedelec
+
+export lagrangian
+export raviart_thomas
+export nedelec
 
 include("Polytopes.jl")
 

@@ -1,6 +1,7 @@
 module DiracDeltasTests
 
 using Test
+using Gridap.TensorValues
 using Gridap.Helpers
 using Gridap.Arrays
 using Gridap.ReferenceFEs
@@ -30,16 +31,19 @@ degree = 2
 δ = DiracDelta{0}(model,tags=4)
 @test sum(δ(v)) ≈ 4
 
+@test sum(δ(3.0)) ≈ 3.0
+@test sum(δ(x->2*x)) ≈ VectorValue(2,2)
+
 δ = DiracDelta{0}(model,tags=[2,4])
 @test sum(δ(v)) ≈ 5
 
 #using Gridap
 #
 #order = 2
-#reffe = ReferenceFE(:Lagrangian,VectorValue{2,Float64},order)
+#reffe = ReferenceFE(lagrangian,VectorValue{2,Float64},order)
 #V = FESpace(model,reffe,dirichlet_tags=[1,2,5])
 #
-#dΩ = LebesgueMeasure(Ω,2*order)
+#dΩ = Measure(Ω,2*order)
 #
 #δ = DiracDelta{0}(model,tags=4)
 #
