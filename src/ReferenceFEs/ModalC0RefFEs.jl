@@ -37,6 +37,22 @@ function ModalC0RefFE(
     shapefuns = AgFEMModalC0Basis{D}(T,orders)
   end
 
+  ndofs, predofs, lag_reffe, face_dofs = compute_lag_reffe_data(T,p,shapefuns)
+
+  GenericRefFE{ModalC0}(
+    ndofs,
+    p,
+    predofs,
+    GradConformity(),
+    lag_reffe,
+    face_dofs,
+    shapefuns)
+end
+
+function compute_lag_reffe_data(::Type{T},
+                                p::Polytope,
+                                shapefuns::AbstractVector{<:Field}) where T
+
   nodes, face_own_nodes = compute_nodes(p,shapefuns.orders)
   predofs = LagrangianDofBasis(T,nodes)
   ndofs = length(predofs.dof_to_node)
@@ -48,16 +64,9 @@ function ModalC0RefFE(
   face_own_dofs = _generate_face_own_dofs(face_own_nodes,predofs.node_and_comp_to_dof)
   face_dofs = _generate_face_dofs(ndofs,face_own_dofs,p,_reffaces)
 
-  lag_reffe = ReferenceFE(p,lagrangian,T,orders)
+  lag_reffe = ReferenceFE(p,lagrangian,T,shapefuns.orders)
+  ndofs, predofs, lag_reffe, face_dofs
 
-  GenericRefFE{ModalC0}(
-    ndofs,
-    p,
-    predofs,
-    GradConformity(),
-    lag_reffe,
-    face_dofs,
-    shapefuns)
 end
 
 function ReferenceFE(
