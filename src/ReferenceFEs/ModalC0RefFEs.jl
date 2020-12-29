@@ -37,7 +37,7 @@ function ModalC0RefFE(
     shapefuns = AgFEMModalC0Basis{D}(T,orders)
   end
 
-  ndofs, predofs, lag_reffe, face_dofs = compute_lag_reffe_data(T,p,shapefuns)
+  ndofs, predofs, lag_reffe, face_dofs = compute_lag_reffe_data(T,p,orders)
 
   GenericRefFE{ModalC0}(
     ndofs,
@@ -50,23 +50,30 @@ function ModalC0RefFE(
 end
 
 function compute_lag_reffe_data(::Type{T},
-                                p::Polytope,
-                                shapefuns::AbstractVector{<:Field}) where T
+                                p::Polytope{D},
+                                order::Int) where {T,D}
 
-  nodes, face_own_nodes = compute_nodes(p,shapefuns.orders)
+  orders = tfill(order,Val{D}())
+  compute_lag_reffe_data(T,p,orders)
+end
+
+function compute_lag_reffe_data(::Type{T},
+                                p::Polytope{D},
+                                orders::NTuple{D,Int}) where {T,D}
+
+  nodes, face_own_nodes = compute_nodes(p,orders)
   predofs = LagrangianDofBasis(T,nodes)
   ndofs = length(predofs.dof_to_node)
 
   nnodes = length(predofs.nodes)
-  reffaces = compute_lagrangian_reffaces(T,p,shapefuns.orders)
+  reffaces = compute_lagrangian_reffaces(T,p,orders)
   _reffaces = vcat(reffaces...)
   face_nodes = _generate_face_nodes(nnodes,face_own_nodes,p,_reffaces)
   face_own_dofs = _generate_face_own_dofs(face_own_nodes,predofs.node_and_comp_to_dof)
   face_dofs = _generate_face_dofs(ndofs,face_own_dofs,p,_reffaces)
 
-  lag_reffe = ReferenceFE(p,lagrangian,T,shapefuns.orders)
+  lag_reffe = ReferenceFE(p,lagrangian,T,orders)
   ndofs, predofs, lag_reffe, face_dofs
-
 end
 
 function ReferenceFE(
@@ -103,4 +110,32 @@ function get_face_own_dofs_permutations(
   reffe::GenericRefFE{ModalC0},conf::GradConformity)
   lagrangian_reffe = reffe.metadata
   get_face_own_dofs_permutations(lagrangian_reffe,conf)
+end
+
+# function compute_cell_to_modalC0_reffe(p::Polytope{D},::Type{T},orders) where {T,D}
+
+# end
+
+function compute_cell_to_modalC0_reffe(p::Polytope{D},
+  l::Int,
+  ::Type{T},
+  orders::Union{Integer,Tuple{Vararg{Integer}}}) where {T,D}
+
+  @notimplementedif ! is_n_cube(p)
+  @notimplementedif minimum(orders) < one(eltype(orders))
+
+  ndofs, predofs, lag_reffe, face_dofs = compute_lag_reffe_data(T,p,orders)
+
+  shapefuns = AgFEMModalC0Basis{D}(T,orders)
+  reffe = GenericRefFE{ModalC0}(
+    ndofs,
+    p,
+    predofs,
+    GradConformity(),
+    lag_reffe,
+    face_dofs,
+    shapefuns)
+
+  # CompressedArray(map(i->reffe,1:l),collect(1:l))
+  Fill(reffe,l)
 end

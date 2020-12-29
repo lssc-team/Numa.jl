@@ -145,6 +145,7 @@ export get_face_own_nodes
 export get_face_nodes
 
 export linear_combination
+export compute_cell_to_modalC0_reffe
 
 export VERTEX1
 export SEG2
