@@ -10,18 +10,18 @@ using Gridap.Fields
 
 # # Degenerated case
 # order = 0
-# reffe = ReferenceFE(QUAD,:ModalC0,Float64,order)
+# reffe = ReferenceFE(QUAD,modalC0,Float64,order)
 
 # # Error if create on simplices
 # order = 1
-# reffe = ReferenceFE(TRI,:ModalC0,Float64,order)
+# reffe = ReferenceFE(TRI,modalC0,Float64,order)
 
 order = 1
 p = QUAD
 T = VectorValue{2,Float64}
 
-m = ReferenceFE(p,:ModalC0,T,order)
-l = ReferenceFE(p,:Lagrangian,T,order)
+m = ReferenceFE(p,modalC0,T,order)
+l = ReferenceFE(p,lagrangian,T,order)
 
 test_reference_fe(m)
 
@@ -35,13 +35,13 @@ partition = (2,2)
 model = CartesianDiscreteModel(domain,partition)
 
 function test_function_interpolation(::Type{T},order,C,u) where T
-  reffe = ReferenceFE(:ModalC0,T,order)
+  reffe = ReferenceFE(modalC0,T,order)
   V = FESpace(model,reffe,conformity=C)
   test_single_field_fe_space(V)
   uh = interpolate(u,V)
   Ω = Triangulation(model)
   degree = 2*order
-  dΩ = LebesgueMeasure(Ω,degree)
+  dΩ = Measure(Ω,degree)
   l2(u) = sqrt(sum( ∫( u⊙u )*dΩ ))
   e = u - uh
   el2 = l2(e)
@@ -71,7 +71,7 @@ test_function_interpolation(T,order,C,u)
 # partition = (1)
 # model = CartesianDiscreteModel(domain,partition)
 # order = 6; T = Float64; C = :H1;
-# reffe = ReferenceFE(:ModalC0,T,order)
+# reffe = ReferenceFE(modalC0,T,order)
 # V = FESpace(model,reffe,conformity=C)
 # Ω = Triangulation(model)
 # degree = 2*order

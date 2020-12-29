@@ -172,10 +172,12 @@ export ModalC0RefFE
 export Lagrangian
 export RaviartThomas
 export Nedelec
+export ModalC0
 
 export lagrangian
 export raviart_thomas
 export nedelec
+export modalC0
 
 include("Polytopes.jl")
 

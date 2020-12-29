@@ -1,7 +1,11 @@
+struct ModalC0 <: ReferenceFEName end
+
+const modalC0 = ModalC0()
+
 """
   ModalC0RefFE(::Type{T},p::Polytope{D},orders) where {T,D}
 
-Returns an instance of `GenericRefFE{:ModalC0}` representing a ReferenceFE with
+Returns an instance of `GenericRefFE{ModalC0}` representing a ReferenceFE with
 Modal C0-continuous shape functions (multivariate scalar-valued, vector-valued,
 or tensor-valued, iso- or aniso-tropic).
 
@@ -46,9 +50,9 @@ function ModalC0RefFE(
   face_own_dofs = _generate_face_own_dofs(face_own_nodes,predofs.node_and_comp_to_dof)
   face_dofs = _generate_face_dofs(ndofs,face_own_dofs,p,_reffaces)
 
-  lag_reffe = ReferenceFE(p,:Lagrangian,T,orders)
+  lag_reffe = ReferenceFE(p,lagrangian,T,orders)
 
-  GenericRefFE{:ModalC0}(
+  GenericRefFE{ModalC0}(
     ndofs,
     p,
     shapefuns,
@@ -61,7 +65,7 @@ end
 
 function ReferenceFE(
   polytope::Polytope,
-  ::Val{:ModalC0},
+  ::ModalC0,
   ::Type{T},
   orders::Union{Integer,Tuple{Vararg{Integer}}};
   kwargs...) where T
@@ -69,7 +73,7 @@ function ReferenceFE(
   ModalC0RefFE(T,polytope,orders;kwargs...)
 end
 
-function Conformity(reffe::GenericRefFE{:ModalC0},sym::Symbol)
+function Conformity(reffe::GenericRefFE{ModalC0},sym::Symbol)
   h1 = (:H1,:C0,:Hgrad)
   if sym == :L2
     L2Conformity()
@@ -84,13 +88,13 @@ function Conformity(reffe::GenericRefFE{:ModalC0},sym::Symbol)
 end
 
 function get_face_own_dofs(
-  reffe::GenericRefFE{:ModalC0},conf::GradConformity)
+  reffe::GenericRefFE{ModalC0},conf::GradConformity)
   lagrangian_reffe = reffe.metadata
   get_face_own_dofs(lagrangian_reffe,conf)
 end
 
 function get_face_own_dofs_permutations(
-  reffe::GenericRefFE{:ModalC0},conf::GradConformity)
+  reffe::GenericRefFE{ModalC0},conf::GradConformity)
   lagrangian_reffe = reffe.metadata
   get_face_own_dofs_permutations(lagrangian_reffe,conf)
 end
