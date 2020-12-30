@@ -30,12 +30,12 @@ test_reference_fe(m)
 @test get_face_own_dofs(m,Conformity(m)) == get_face_own_dofs(l,Conformity(l))
 @test get_face_own_dofs_permutations(m,Conformity(m)) == get_face_own_dofs_permutations(l,Conformity(l))
 
-domain = (0,1,0,1)
-partition = (2,2)
-model = CartesianDiscreteModel(domain,partition)
+# domain = (0,1,0,1)
+# partition = (2,2)
+# model = CartesianDiscreteModel(domain,partition)
 
-function test_function_interpolation(::Type{T},order,C,u) where T
-  reffe = ReferenceFE(modalC0,T,order)
+function test_function_interpolation(::Type{T},order,C,u,a,b) where T
+  reffe = ReferenceFE(modalC0,T,order,a,b)
   V = FESpace(model,reffe,conformity=C)
   test_single_field_fe_space(V)
   uh = interpolate(u,V)
@@ -46,24 +46,90 @@ function test_function_interpolation(::Type{T},order,C,u) where T
   e = u - uh
   el2 = l2(e)
   @test el2 < 1.0e-9
+  # writevtk(Ω,"results",nsubcells=20,cellfields=["uh"=>uh])
+  # free_vals = zeros(num_free_dofs(V)); free_vals[7] = 1
+  # uh = FEFunction(V,free_vals)
+  # writevtk(Ω,"shape_7",nsubcells=20,cellfields=["s7"=>uh])
+  # free_vals = zeros(num_free_dofs(V)); free_vals[9] = 1
+  # uh = FEFunction(V,free_vals)
+  # writevtk(Ω,"shape_9",nsubcells=20,cellfields=["s9"=>uh])
+  # free_vals = zeros(num_free_dofs(V)); free_vals[11] = 1
+  # uh = FEFunction(V,free_vals)
+  # writevtk(Ω,"shape_11",nsubcells=20,cellfields=["s11"=>uh])
+  # free_vals = zeros(num_free_dofs(V)); free_vals[13] = 1
+  # uh = FEFunction(V,free_vals)
+  # writevtk(Ω,"shape_13",nsubcells=20,cellfields=["s13"=>uh])
 end
 
-order = 2; T = Float64; C = :H1; u(x) = (x[1]+x[2])^2
-test_function_interpolation(T,order,C,u)
-
-order = 1; T = Float64; C = :L2; u(x) = x[1]+x[2]
-test_function_interpolation(T,order,C,u)
-
-order = 1; T = VectorValue{2,Float64}; C = :H1
-u(x) = VectorValue(x[1]+x[2],x[2])
-test_function_interpolation(T,order,C,u)
-
-domain = (0,1,0,1,0,1)
-partition = (2,2,2)
+domain = (0,1)
+partition = (1,)
 model = CartesianDiscreteModel(domain,partition)
 
-order = 1; T = Float64; C = :H1; u(x) = x[1]+x[2]+x[3]
-test_function_interpolation(T,order,C,u)
+order = 3; T = Float64; C = :H1; u(x) = x[1]^3
+a = [Point(0.0),Point(0.0),Point(0.0),Point(-3.0)]; a = fill(a,1)
+b = [Point(1.0),Point(1.0),Point(1.0),Point(1.5)]; b = fill(b,1)
+test_function_interpolation(T,order,C,u,a,b)
+
+domain = (0,1)
+partition = (4,)
+model = CartesianDiscreteModel(domain,partition)
+
+order = 3; T = Float64; C = :H1; u(x) = x[1]^3
+a = [ [Point(0.0),Point(0.0),Point(0.0),Point(-1.0)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-1.5)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-0.2)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-1.2)] ]
+b = [ [Point(1.0),Point(1.0),Point(1.0),Point(3.0)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(3.2)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(1.0)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(2.0)] ]
+test_function_interpolation(T,order,C,u,a,b)
+
+domain = (0,4)
+partition = (4,)
+model = CartesianDiscreteModel(domain,partition)
+
+order = 3; T = Float64; C = :H1; u(x) = x[1]^3
+a = [ [Point(0.0),Point(0.0),Point(0.0),Point(-1.0)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-1.5)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-0.2)],
+      [Point(0.0),Point(0.0),Point(0.0),Point(-1.2)] ]
+b = [ [Point(1.0),Point(1.0),Point(1.0),Point(3.0)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(3.2)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(1.0)],
+      [Point(1.0),Point(1.0),Point(1.0),Point(2.0)] ]
+test_function_interpolation(T,order,C,u,a,b)
+
+domain = (0,1,0,1)
+partition = (2,2)
+model = CartesianDiscreteModel(domain,partition)
+
+order = 3; T = Float64; C = :H1; u(x) = (x[1]+x[2])^3
+a = reshape([Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),
+             Point(-0.5,2.5),Point(-0.5,2.5),Point(-0.5,2.5),Point(-0.5,2.5),
+             Point(-1.0,-1.0),Point(-1.0,-1.0),Point(-1.0,-1.0),Point(-1.0,-1.0),
+             Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0)],16)
+a = fill(a,4)
+b = reshape([Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),
+             Point(2.5,2.5),Point(2.5,2.5),Point(2.5,2.5),Point(2.5,2.5),
+             Point(-1.0,1.25),Point(-1.0,1.25),Point(-1.0,1.25),Point(-1.0,1.25),
+             Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0)],16)
+b = fill(b,4)
+test_function_interpolation(T,order,C,u,a,b)
+
+# order = 1; T = Float64; C = :L2; u(x) = x[1]+x[2]
+# test_function_interpolation(T,order,C,u)
+
+# order = 1; T = VectorValue{2,Float64}; C = :H1
+# u(x) = VectorValue(x[1]+x[2],x[2])
+# test_function_interpolation(T,order,C,u)
+
+# domain = (0,1,0,1,0,1)
+# partition = (2,2,2)
+# model = CartesianDiscreteModel(domain,partition)
+
+# order = 1; T = Float64; C = :H1; u(x) = x[1]+x[2]+x[3]
+# test_function_interpolation(T,order,C,u)
 
 # Inspect operator matrix to check if L2-scalar product of
 # gradients of bubble functions satisfy Kronecker's delta
