@@ -5,6 +5,7 @@ using Gridap
 using Gridap.ReferenceFEs
 using Gridap.FESpaces
 using Gridap.Fields
+using Gridap.CellData
 
 # using BenchmarkTools
 
@@ -34,8 +35,8 @@ test_reference_fe(m)
 # partition = (2,2)
 # model = CartesianDiscreteModel(domain,partition)
 
-function test_function_interpolation(::Type{T},order,C,u,a,b) where T
-  reffe = ReferenceFE(modalC0,T,order,a,b)
+function test_function_interpolation(::Type{T},order,C,u,bboxes) where T
+  reffe = ReferenceFE(modalC0,T,order,bboxes)
   V = FESpace(model,reffe,conformity=C)
   test_single_field_fe_space(V)
   uh = interpolate(u,V)
@@ -64,58 +65,49 @@ end
 domain = (0,1)
 partition = (1,)
 model = CartesianDiscreteModel(domain,partition)
+trian = Triangulation(model)
 
-order = 3; T = Float64; C = :H1; u(x) = x[1]^3
-a = [Point(0.0),Point(0.0),Point(0.0),Point(-3.0)]; a = fill(a,1)
-b = [Point(1.0),Point(1.0),Point(1.0),Point(1.5)]; b = fill(b,1)
-test_function_interpolation(T,order,C,u,a,b)
+T = Float64; order = 3; C = :H1; u(x) = x[1]^3
+bboxes = [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-3.0),Point(1.0)]
+bboxes = CellPoint(fill(bboxes,1),trian,PhysicalDomain())
+test_function_interpolation(T,order,C,u,bboxes.cell_ref_point)
 
 domain = (0,1)
 partition = (4,)
 model = CartesianDiscreteModel(domain,partition)
 
-order = 3; T = Float64; C = :H1; u(x) = x[1]^3
-a = [ [Point(0.0),Point(0.0),Point(0.0),Point(-1.0)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-1.5)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-0.2)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-1.2)] ]
-b = [ [Point(1.0),Point(1.0),Point(1.0),Point(3.0)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(3.2)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(1.0)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(2.0)] ]
-test_function_interpolation(T,order,C,u,a,b)
+T = Float64; order = 3; C = :H1; u(x) = x[1]^3
+bboxes = [ [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.0),Point(3.0)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.5),Point(3.2)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-0.2),Point(1.0)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.2),Point(2.0)] ]
+test_function_interpolation(T,order,C,u,bboxes)
 
 domain = (0,4)
 partition = (4,)
 model = CartesianDiscreteModel(domain,partition)
 
-order = 3; T = Float64; C = :H1; u(x) = x[1]^3
-a = [ [Point(0.0),Point(0.0),Point(0.0),Point(-1.0)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-1.5)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-0.2)],
-      [Point(0.0),Point(0.0),Point(0.0),Point(-1.2)] ]
-b = [ [Point(1.0),Point(1.0),Point(1.0),Point(3.0)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(3.2)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(1.0)],
-      [Point(1.0),Point(1.0),Point(1.0),Point(2.0)] ]
-test_function_interpolation(T,order,C,u,a,b)
+T = Float64; order = 3; C = :H1; u(x) = x[1]^3
+bboxes = [ [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.0),Point(3.0)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.5),Point(3.2)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-0.2),Point(1.0)],
+           [Point(0.0),Point(1.0),Point(0.0),Point(1.0),Point(-1.2),Point(2.0)] ]
+test_function_interpolation(T,order,C,u,bboxes)
 
 domain = (0,1,0,1)
-partition = (2,2)
+partition = (2,2,)
 model = CartesianDiscreteModel(domain,partition)
+trian = Triangulation(model)
 
-order = 3; T = Float64; C = :H1; u(x) = (x[1]+x[2])^3
-a = reshape([Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),
-             Point(-0.5,2.5),Point(-0.5,2.5),Point(-0.5,2.5),Point(-0.5,2.5),
-             Point(-1.0,-1.0),Point(-1.0,-1.0),Point(-1.0,-1.0),Point(-1.0,-1.0),
-             Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0),Point(0.0,0.0)],16)
-a = fill(a,4)
-b = reshape([Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),
-             Point(2.5,2.5),Point(2.5,2.5),Point(2.5,2.5),Point(2.5,2.5),
-             Point(-1.0,1.25),Point(-1.0,1.25),Point(-1.0,1.25),Point(-1.0,1.25),
-             Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0),Point(1.0,1.0)],16)
-b = fill(b,4)
-test_function_interpolation(T,order,C,u,a,b)
+T = Float64; order = 3; C = :H1; u(x) = (x[1]+x[2])^3
+bboxes = reshape( [Point(0.0,0.0),Point(1.0,1.0),Point(0.0,0.0),
+                   Point(1.0,1.0),Point(0.0,0.0),Point(1.0,1.0),
+                   Point(0.0,0.0),Point(1.0,1.0),Point(-0.5,2.5),
+                   Point(2.5,2.5),Point(-0.5,2.5),Point(2.5,2.5),
+                   Point(-1.0,-1.0),Point(-1.0,1.25),Point(-1.0,-1.0),
+                   Point(-1.0,1.25),Point(0.0,0.0),Point(1.0,1.0)], 18 )
+bboxes = CellPoint(fill(bboxes,4),trian,PhysicalDomain())
+test_function_interpolation(T,order,C,u,bboxes.cell_ref_point)
 
 # order = 1; T = Float64; C = :L2; u(x) = x[1]+x[2]
 # test_function_interpolation(T,order,C,u)
@@ -144,6 +136,6 @@ test_function_interpolation(T,order,C,u,a,b)
 # dΩ = LebesgueMeasure(Ω,degree)
 # a(u,v) = ∫( ∇(v)⊙∇(u) )*dΩ
 # b(v) = 0.0
-# op = AffineFEOperator(a,b,V,V)
+# op = AffineFEOperator(bboxes,V,V)
 
 end # module

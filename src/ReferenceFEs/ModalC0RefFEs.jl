@@ -136,18 +136,36 @@ function get_face_own_dofs_permutations(
   get_face_own_dofs_permutations(lagrangian_reffe,conf)
 end
 
-function compute_cell_to_modalC0_reffe(p::Polytope{D},
-                                       ::Type{T},
-                                       orders::Union{Integer,NTuple{D,Int}},
-                                       a::Vector{Vector{Point{D,V}}},
-                                       b::Vector{Vector{Point{D,V}}} ) where {T,D,V}
+function compute_shapefun_bboxes!(
+  a::Vector{Point{D,V}},
+  b::Vector{Point{D,V}},
+  bboxes::Vector{Point{D,V}},
+  face_own_dofs) where {D,V}
+  for i in 1:length(face_own_dofs)
+    a[face_own_dofs[i]] .= bboxes[2*i-1]
+    b[face_own_dofs[i]] .= bboxes[2*i]
+  end
+end
+
+function compute_cell_to_modalC0_reffe(
+  p::Polytope{D},
+  ::Type{T},
+  orders::Union{Integer,NTuple{D,Int}},
+  bboxes) where {T,D} # type-stability?
 
   @notimplementedif ! is_n_cube(p)
   @notimplementedif minimum(orders) < one(eltype(orders))
 
   ndofs, predofs, lag_reffe, face_dofs = compute_lag_reffe_data(T,p,orders)
+  face_own_dofs = get_face_own_dofs(lag_reffe,GradConformity())
 
-  sh(a,b) = AgFEMModalC0Basis{D}(T,orders,a,b)
+  sh(bbs) = begin
+    a = fill(Point{D,eltype(T)}(tfill(zero(eltype(T)),Val{D}())),ndofs)
+    b = fill(Point{D,eltype(T)}(tfill(zero(eltype(T)),Val{D}())),ndofs)
+    compute_shapefun_bboxes!(a,b,bbs,face_own_dofs)
+    AgFEMModalC0Basis{D}(T,orders,a,b)
+  end
+
   reffe(sh) = GenericRefFE{ModalC0}(ndofs,
                                     p,
                                     predofs,
@@ -156,6 +174,6 @@ function compute_cell_to_modalC0_reffe(p::Polytope{D},
                                     face_dofs,
                                     sh)
 
-  reffes = [ reffe(sh(ai,bi)) for (ai,bi) in zip(a,b) ]
+  reffes = [ reffe(sh(bbs)) for bbs in bboxes ]
   CompressedArray(reffes,1:length(reffes))
 end
