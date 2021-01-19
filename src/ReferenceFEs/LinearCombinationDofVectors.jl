@@ -1,8 +1,3 @@
-function linear_combination(a::AbstractMatrix{<:Number},
-                            b::AbstractVector{<:Dof})
-  LinearCombinationDofVector(a,b)
-end
-
 """
     struct LinearCombinationDofVector{T} <: AbstractVector{Dof}
       change_of_basis::Matrix{T}
@@ -28,6 +23,16 @@ end
 @inline Base.axes(a::LinearCombinationDofVector) = axes(a.dof_basis)
 @inline Base.getindex(a::LinearCombinationDofVector,i::Integer) = getindex(a.dof_basis,i)
 @inline Base.IndexStyle(::LinearCombinationDofVector) = IndexLinear()
+
+function linear_combination(a::AbstractMatrix{<:Number},
+                            b::AbstractVector{<:Dof})
+  LinearCombinationDofVector(a,b)
+end
+
+function linear_combination(a::LinearCombinationDofVector{T},
+                            b::AbstractVector{<:Dof}) where T
+  linear_combination(a.change_of_basis,b)
+end
 
 function return_cache(b::LinearCombinationDofVector,field)
   # vals_to_lincom_vals = linear_combination(b.change_of_basis,field)
