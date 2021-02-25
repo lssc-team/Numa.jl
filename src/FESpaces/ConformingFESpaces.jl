@@ -6,9 +6,9 @@ This can be relaxed in the future, to have an arbitrary cell-wise dof ownership.
 """
 struct CellConformity{T} <: GridapType
   cell_ctype::T
-  ctype_lface_own_ldofs::Vector{Vector{Vector{Int}}}
-  ctype_lface_pindex_pdofs::Vector{Vector{Vector{Vector{Int}}}}
-  d_ctype_num_dfaces::Vector{Vector{Int}}
+  ctype_lface_own_ldofs::AbstractVector{Vector{Vector{Int}}}
+  ctype_lface_pindex_pdofs::AbstractVector{Vector{Vector{Vector{Int}}}}
+  d_ctype_num_dfaces::AbstractVector
 end
 
 function Base.getproperty(a::CellConformity, sym::Symbol)
@@ -40,9 +40,8 @@ end
 function _d_ctype_ldface_own_ldofs(a::CellConformity)
   num_ctypes = length(a.ctype_lface_own_ldofs)
   num_ds = length(a.d_ctype_num_dfaces)
-  [[[ a.ctype_lface_own_ldofs[ctype][ldface+a.d_ctype_offset[d][ctype]]
-    for ldface in 1:a.d_ctype_num_dfaces[d][ctype] ]
-    for ctype in 1:num_ctypes ]
+  [ Fill([ a.ctype_lface_own_ldofs[1][ldface+a.d_ctype_offset[d][1]]
+    for ldface in 1:a.d_ctype_num_dfaces[d][1] ],num_ctypes)
     for d in 1:num_ds ]
 end
 
@@ -99,10 +98,10 @@ Generate A CellConformity from a vector of reference fes
 function CellConformity(cell_reffe::AbstractArray{<:ReferenceFE},conformity=nothing)
   ctype_reffe, cell_ctype = compress_cell_data(cell_reffe)
   conf = Conformity(first(ctype_reffe),conformity)
-  ctype_lface_own_ldofs = map(reffe->get_face_own_dofs(reffe,conf),ctype_reffe)
-  ctype_lface_pindex_pdofs = map(reffe->get_face_own_dofs_permutations(reffe,conf),ctype_reffe)
+  ctype_lface_own_ldofs = Fill(get_face_own_dofs(ctype_reffe[1],conf),length(ctype_reffe))
+  ctype_lface_pindex_pdofs = Fill(get_face_own_dofs_permutations(ctype_reffe[1],conf),length(ctype_reffe))
   D = num_dims(first(ctype_reffe))
-  d_ctype_num_dfaces = [ map(reffe->num_faces(get_polytope(reffe),d),ctype_reffe) for d in 0:D]
+  d_ctype_num_dfaces = [ Fill(num_faces(get_polytope(ctype_reffe[1]),d),length(ctype_reffe)) for d in 0:D]
   CellConformity(
     cell_ctype,
     ctype_lface_own_ldofs,
