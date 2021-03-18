@@ -161,6 +161,7 @@ export get_triangulation
 
 export UnstructuredDiscreteModel
 export CartesianDiscreteModel
+export BoundaryDiscreteModel
 
 export BoundaryTriangulation
 export DiscreteModelPortion
@@ -219,5 +220,7 @@ include("RestrictedDiscreteModels.jl")
 include("AppendedTriangulations.jl")
 
 include("CompressedCellArrays.jl")
+
+include("BoundaryDiscreteModel.jl")
 
 end # module
