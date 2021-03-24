@@ -15,10 +15,4 @@ quad = TensorProductQuadrature{D}(degree)
 test_quadrature(quad)
 @test sum(get_weights(quad)) ≈ 1
 
-D = 2
-degree = 7
-quad = TensorProductQuadrature{D}(degree)
-test_quadrature(quad)
-@test sum(get_weights(quad)) ≈ 1
-
 end # module
