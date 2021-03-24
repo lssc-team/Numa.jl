@@ -36,7 +36,7 @@ function TensorProductQuadrature{D}(degrees) where D
     @assert D == length(degrees)
     T = Float64
     npoints = [ ceil(Int,(degrees[i]+1.0)/2.0) for i in 1:D ]
-    if any(degrees .> 8)
+    if any(degrees .> 4)
       # Gauss-Lobatto (Fekete) points
       quads = [ gausslobatto( npoints[i] ) for i in 1:D ]
     else
