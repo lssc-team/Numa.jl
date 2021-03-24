@@ -10,6 +10,7 @@ using Test
 using QuadGK: gauss
 using FastGaussQuadrature: gaussjacobi
 using FastGaussQuadrature: gausslegendre
+using FastGaussQuadrature: gausslobatto
 using FillArrays
 
 using Gridap.Helpers
