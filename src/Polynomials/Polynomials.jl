@@ -19,6 +19,7 @@ import Gridap.Fields: return_cache
 import Gridap.Arrays: return_type
 
 export MonomialBasis
+export JacobiPolynomialBasis
 export ModalC0Basis
 export ModifiedModalC0Basis
 export AgFEMModalC0Basis
@@ -32,6 +33,8 @@ export get_orders
 export num_terms
 
 include("MonomialBases.jl")
+
+include("JacobiPolynomialBases.jl")
 
 include("ModalC0Bases.jl")
 
