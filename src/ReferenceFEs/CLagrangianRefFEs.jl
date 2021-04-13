@@ -642,11 +642,43 @@ function compute_nodes(p::ExtrusionPolytope{D},orders) where D
   if any( orders .> 3 )
     quad = GaussLobatoQuadrature( 2 .* orders )
     nodes = quad.coordinates
+    sort_nodes_by_nfaces!(nodes,orders)
   else
     terms = _coords_to_terms(_nodes,orders)
     nodes = _terms_to_coords(terms,orders)
   end
   (nodes, facenodes)
+end
+
+function sort_nodes_by_nfaces!(nodes::Vector{Point{D,T}},orders) where {D,T}
+
+  # Generate indices of n-faces and order s.t.
+  # (1) dimension-increasing (2) lexicographic
+  bin_rang_nfaces = tfill(0:1,Val{D}())
+  bin_ids_nfaces = collect(Iterators.product(bin_rang_nfaces...))
+  sum_bin_ids_nfaces = [sum(bin_ids_nfaces[i]) for i in eachindex(bin_ids_nfaces)]
+  bin_ids_nfaces = permute!(bin_ids_nfaces,sortperm(sum_bin_ids_nfaces))
+
+  # Generate LIs of basis funs s.t. order by n-faces
+  lids_b = LinearIndices(Tuple([orders[i]+1 for i=1:D]))
+
+  eet = eltype(eltype(bin_ids_nfaces))
+  f(x) = Tuple( x[i] == one(eet) ? (0:0) : (1:orders[i]:(orders[i]+1)) for i in 1:length(x) )
+  g(x) = Tuple( x[i] == one(eet) ? (2:orders[i]) : (0:0) for i in 1:length(x) )
+  rang_nfaces = map(f,bin_ids_nfaces)
+  rang_own_dofs = map(g,bin_ids_nfaces)
+
+  P = Int64[]
+  for i = 1:length(bin_ids_nfaces)
+    cis_nfaces = CartesianIndices(rang_nfaces[i])
+    cis_own_dofs = CartesianIndices(rang_own_dofs[i])
+    for ci in cis_nfaces
+      ci = ci .+ cis_own_dofs
+      P = vcat(P,reshape(lids_b[ci],length(ci)))
+    end
+  end
+
+  permute!(nodes,P)
 end
 
 # Helpers for the ExtrusionPolytope-related implementation
