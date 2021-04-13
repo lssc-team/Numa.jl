@@ -12,6 +12,11 @@ struct TensorProductQuadrature{D,T} <: Quadrature{D,T}
   weights::Vector{T}
 end
 
+struct GaussLobatoQuadrature{D,T} <: Quadrature{D,T}
+  coordinates::Vector{Point{D,T}}
+  weights::Vector{T}
+end
+
 get_coordinates(q::TensorProductQuadrature) = q.coordinates
 
 get_weights(q::TensorProductQuadrature) = q.weights
@@ -36,13 +41,7 @@ function TensorProductQuadrature{D}(degrees) where D
     @assert D == length(degrees)
     T = Float64
     npoints = [ ceil(Int,(degrees[i]+1.0)/2.0) for i in 1:D ]
-    if any(degrees .> 8)
-      # Gauss-Lobatto (Fekete) points
-      quads = [ gausslobatto( npoints[i] ) for i in 1:D ]
-    else
-      # Gauss-Legendre points
-      quads = [ gauss( eltype(Point{D,T}), npoints[i] ) for i in 1:D ]
-    end
+    quads = [ gauss( eltype(Point{D,T}), npoints[i] ) for i in 1:D ]
     for i in 1:D
       quads[i][1] .+= 1;
       quads[i][1] .*= 1.0/2.0
@@ -55,6 +54,35 @@ end
 function TensorProductQuadrature{D}(degree::Integer) where D
   degrees = tfill(degree,Val{D}())
   TensorProductQuadrature(degrees)
+end
+
+# GaussLobato
+
+function GaussLobatoQuadrature(degrees::NTuple{D,Int}) where D
+  GaussLobatoQuadrature{D}(degrees)
+end
+
+function GaussLobatoQuadrature(degrees::Point{D}) where D
+  GaussLobatoQuadrature{D}(degrees)
+end
+
+function GaussLobatoQuadrature{D}(degrees) where D
+  @assert D == length(degrees)
+  T = Float64
+  npoints = [ ceil(Int,(degrees[i]+1.0)/2.0) for i in 1:D ]
+  quads = [ gausslobatto( npoints[i] ) for i in 1:D ]
+  for i in 1:D
+    quads[i][1] .+= 1;
+    quads[i][1] .*= 1.0/2.0
+    quads[i][2] .*= 1.0/2.0
+  end
+  (coords, weights) = _tensor_product(Point{D,T},quads,npoints)
+  GaussLobatoQuadrature(coords,weights)
+end
+
+function GaussLobatoQuadrature{D}(degree::Integer) where D
+  degrees = tfill(degree,Val{D}())
+  GaussLobatoQuadrature(degrees)
 end
 
 # Helpers

@@ -639,8 +639,13 @@ function compute_nodes(p::ExtrusionPolytope{D},orders) where D
   if any( map(i->i==0,orders))
     return (_nodes, facenodes)
   end
-  terms = _coords_to_terms(_nodes,orders)
-  nodes = _terms_to_coords(terms,orders)
+  if any( orders .> 3 )
+    quad = GaussLobatoQuadrature( 2 .* orders )
+    nodes = quad.coordinates
+  else
+    terms = _coords_to_terms(_nodes,orders)
+    nodes = _terms_to_coords(terms,orders)
+  end
   (nodes, facenodes)
 end
 

@@ -21,6 +21,7 @@ using Gridap.Arrays
 export Quadrature
 export GenericQuadrature
 export TensorProductQuadrature
+export GaussLobatoQuadrature
 export DuffyQuadrature
 export num_points
 export get_coordinates
