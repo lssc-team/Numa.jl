@@ -330,6 +330,13 @@ function compress(cell_mat,trian::Triangulation)
   cell_mat, get_cell_to_bgcell(trian)
 end
 
+function Quadrature(trian::Triangulation,args...;kwargs...)
+  cell_ctype = get_cell_type(trian)
+  ctype_polytope = map(get_polytope,get_reffes(trian))
+  ctype_quad = map(p->Quadrature(p,args...;kwargs...),ctype_polytope)
+  cell_quad = expand_cell_data(ctype_quad,cell_ctype)
+end
+
 #"""
 #"""
 #function CellField(object,trian::Triangulation)

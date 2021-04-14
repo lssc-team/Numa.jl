@@ -16,7 +16,11 @@ using Gridap.Arrays
 using Gridap.TensorValues
 using Gridap.Fields
 using Gridap.Polynomials
-using Gridap.Integration
+
+using QuadGK: gauss
+using FastGaussQuadrature: gaussjacobi
+using FastGaussQuadrature: gausslegendre
+using FastGaussQuadrature: gausslobatto
 
 import Gridap.Arrays: return_cache
 import Gridap.Arrays: evaluate!
@@ -28,10 +32,6 @@ import Gridap.Polynomials: MonomialBasis
 
 import Gridap.Polynomials: get_order
 import Gridap.Polynomials: get_orders
-
-import Gridap.Integration: Quadrature
-import Gridap.Integration: num_dims
-import Gridap.Integration: num_point_dims
 
 import Gridap.Io: to_dict
 import Gridap.Io: from_dict
@@ -61,6 +61,8 @@ export num_vertices
 export num_faces
 export num_facets
 export num_edges
+export num_dims
+export num_point_dims
 export get_facedims
 export get_offsets
 export get_offset
@@ -180,6 +182,21 @@ export raviart_thomas
 export nedelec
 export modalC0
 
+export Quadrature
+export QuadratureName
+export GenericQuadrature
+export num_points
+export get_coordinates
+export get_weights
+export get_name
+export num_dims
+export num_point_dims
+export test_quadrature
+export tensor_product
+export duffy
+export strang
+export gauss_lobatto
+
 include("Polytopes.jl")
 
 include("ExtrusionPolytopes.jl")
@@ -201,6 +218,14 @@ include("SerendipityRefFEs.jl")
 include("PDiscRefFEs.jl")
 
 include("CDLagrangianRefFEs.jl")
+
+include("Quadratures.jl")
+
+include("TensorProductQuadratures.jl")
+
+include("DuffyQuadratures.jl")
+
+include("StrangQuadratures.jl")
 
 include("RaviartThomasRefFEs.jl")
 

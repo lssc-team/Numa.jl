@@ -640,7 +640,7 @@ function compute_nodes(p::ExtrusionPolytope{D},orders) where D
     return (_nodes, facenodes)
   end
   if any( orders .> 3 )
-    quad = GaussLobatoQuadrature( 2 .* orders )
+    quad = Quadrature( p, gauss_lobatto, 2 .* orders )
     nodes = quad.coordinates
     sort_nodes_by_nfaces!(nodes,orders)
   else

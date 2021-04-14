@@ -5,23 +5,23 @@ using Gridap
 import Gridap: ∇
 #using LinearAlgebra
 
-#domain = (0,1,0,1)
-#partition = (4,4)
-#model = CartesianDiscreteModel(domain,partition)
-#const h = (domain[2]-domain[1]) / partition[1]
+domain = (0,1,0,1)
+partition = (4,4)
+model = CartesianDiscreteModel(domain,partition)
+const h = (domain[2]-domain[1]) / partition[1]
 
-using Gridap.Geometry: DiscreteModelMock
-model = DiscreteModelMock()
-const h = 1
+# using Gridap.Geometry: DiscreteModelMock
+# model = DiscreteModelMock()
+# const h = 1
 
-order = 2
+order = 7
 const γ = 10
 
 Ω = Triangulation(model)
 Γ = BoundaryTriangulation(model)
 Λ = SkeletonTriangulation(model)
 
-degree = order
+degree = 2*order
 dΩ = Measure(Ω,degree)
 dΓ = Measure(Γ,degree)
 dΛ = Measure(Λ,degree)
@@ -35,17 +35,14 @@ u(x) = x[1]^2 + x[2]
 f(x) = - Δu(x)
 ∇(::typeof(u)) = ∇u
 
-V = TestFESpace(model,ReferenceFE(lagrangian,Float64,order),conformity=:L2)
+V = TestFESpace(model,ReferenceFE(lagrangian,Float64,order),conformity=:H1,dirichlet_tags="boundary")
 U = TrialFESpace(V,u)
 
 a(u,v) =
-  ∫( ∇(v)⋅∇(u) )*dΩ +
-  ∫( (γ/h)*v*u  - v*(n_Γ⋅∇(u)) - (n_Γ⋅∇(v))*u )*dΓ +
-  ∫( (γ/h)*jump(v*n_Λ)⋅jump(u*n_Λ) - jump(v*n_Λ)⋅mean(∇(u)) -  mean(∇(v))⋅jump(u*n_Λ) )*dΛ
+  ∫( ∇(v)⋅∇(u) )*dΩ
 
 l(v) =
-  ∫( v*f )*dΩ +
-  ∫( (γ/h)*v*u - (n_Γ⋅∇(v))*u )*dΓ
+  ∫( v*f )*dΩ
 
 op = AffineFEOperator(a,l,U,V)
 
