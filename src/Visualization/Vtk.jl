@@ -154,7 +154,19 @@ function get_vtkid(p::ExtrusionPolytope, basis::MonomialBasis)
   vtkid
 end
 
+function get_vtkid(p::ExtrusionPolytope, basis::JacobiPolynomialBasis)
+  exponents = get_exponents(basis)
+  vtkid, _ = _vtkinfo_extrusion_polytope(p,exponents)
+  vtkid
+end
+
 function get_vtknodes(p::ExtrusionPolytope, basis::MonomialBasis)
+  exponents = get_exponents(basis)
+  _, vtknodes = _vtkinfo_extrusion_polytope(p,exponents)
+  vtknodes
+end
+
+function get_vtknodes(p::ExtrusionPolytope, basis::JacobiPolynomialBasis)
   exponents = get_exponents(basis)
   _, vtknodes = _vtkinfo_extrusion_polytope(p,exponents)
   vtknodes
