@@ -231,7 +231,7 @@ end
   end
   str = join(ss)
   Meta.parse("ThirdOrderTensorValue{$D,$D,$L}($str)")
-end 
+end
 
 const ⋅¹ = dot
 
@@ -454,7 +454,7 @@ det(a::MultiValue{Tuple{1,1}}) = a[1]
 function det(a::MultiValue{Tuple{2,2}})
   a_11 = a[1,1]; a_12 = a[1,2]
   a_21 = a[2,1]; a_22 = a[2,2]
-  a_11*a_22 - a_12*a_21 
+  a_11*a_22 - a_12*a_21
 end
 
 function det(a::MultiValue{Tuple{3,3}})
@@ -641,5 +641,92 @@ end
 #    end
 #end
 
+###############################################################
+# General Tensor Operations
+###############################################################
+import Gridap.TensorValues: data_index
+"""
+  Contract A and B where A and B are of a MultiValue type given indexing 
+  `A_ind` and `B_ind` which are vectors of symbols and `new_ind` is the resulting indexing.
+    eg.
+      ```
+      t2 = SymFourthOrderTensorValue(1:36 ...)
+      contract(t2,[:i,:j,:k,:l],t2,[:k,:l,:m,:n],[:i,:j,:m,:n])
+      ```
+  We assume that a contraction resulting in a 4-tensor will be such that the result is 
+  a symmetric 4-tensor to adhere to Gridap `SymFourthOrderTensorValue` typing.
+"""
+function contract(A::MultiValue, A_ind::Vector{Symbol}, B::MultiValue, B_ind::Vector{Symbol}, new_ind::Vector{Symbol})
+  A_array = Array(get_array(A));
+  B_array = Array(get_array(B));
+  C = tensorcontract(A_array,A_ind,B_array,B_ind,new_ind)
+  if ndims(C) == 1
+    return VectorValue(C)
+  elseif ndims(C) == 2
+    return TensorValue(C)
+  elseif ndims(C) == 3
+    return ThirdOrderTensorValue(C)
+  elseif ndims(C) == 4
+    # @warn "Assuming C is symmetric 4-tensor"
+    D = size(C,1)
+    data_tuple = Array{Union{Nothing,Float64}}(undef, (D*(D+1)÷2)^2)
+    for j=1:D,i=j:D,l=1:D,k=l:D
+      p = data_index(SymFourthOrderTensorValue{D},i,j,k,l)
+      data_tuple[p] = C[i,j,k,l]
+    end
+    return SymFourthOrderTensorValue(data_tuple...)
+  end
+  @warn "No general MultiValue type for ndims(C)>4. Output of type Array."
+  return C
+end
 
-
+"""
+  `@GTensor` is macro which is similar to the `@Tensor` macro in TensorOperations.jl.
+  `@GTensor` macro-ises the above and allows for the computation with CellFields
+  via creating temporary operations function. The notation is almost identical to
+  TensorOperations.jl: @Tensor. 
+    eg.
+      ```
+      t1 = ThirdOrderTensorValue(1:27 ...)
+      t2 = SymFourthOrderTensorValue(1:36 ...)
+      @GTensor res[i,l,m]=t1[i,j,k]*t2[j,k,l,m]
+      ````
+  will compute `res` and create a new `res` variable of type `ThirdOrderTensorValue`.
+"""
+macro GTensor(expr)
+    @assert expr.head == :(=)
+    out_args = expr.args[1]
+    out_args = typeof(out_args) == Symbol ? [out_args] : out_args.args
+    in_args = expr.args[2]
+    @assert in_args.args[1] == :*
+    A_in_args = in_args.args[2].args
+    B_in_args = in_args.args[3].args
+    # result =
+    begin quote
+        if typeof($(esc(A_in_args[1]))) <: Array && typeof($(esc(B_in_args[1]))) <: Array
+            $(esc(out_args[1])) = contract.($(esc(A_in_args[1])),([$A_in_args[2:end]...],),
+                            $(esc(B_in_args[1])),([$B_in_args[2:end]...],),([$out_args[2:end]...],))
+        elseif typeof($(esc(A_in_args[1]))) <: Array && typeof($(esc(B_in_args[1]))) <: Number
+            $(esc(out_args[1])) = contract.($(esc(A_in_args[1])),([$A_in_args[2:end]...],),
+                            ($(esc(B_in_args[1])),),([$B_in_args[2:end]...],),([$out_args[2:end]...],))
+        elseif typeof($(esc(A_in_args[1]))) <: Number && typeof($(esc(B_in_args[1]))) <: Array
+            $(esc(out_args[1])) = contract.(($(esc(A_in_args[1])),),([$A_in_args[2:end]...],),
+                            $(esc(B_in_args[1])),([$B_in_args[2:end]...],),([$out_args[2:end]...],))
+        elseif typeof($(esc(A_in_args[1]))) <: Number && typeof($(esc(B_in_args[1]))) <: Number
+            $(esc(out_args[1])) = contract($(esc(A_in_args[1])),[$A_in_args[2:end]...],
+                            $(esc(B_in_args[1])),[$B_in_args[2:end]...],[$out_args[2:end]...])
+        else
+            function tmp_operation(a::A,b::B) where {A<:MultiValue, B<:MultiValue}
+                contract(a,[$A_in_args[2:end]...],
+                                b,[$B_in_args[2:end]...],[$out_args[2:end]...])
+            end
+            tmp_operation(a::CellField,b::Number) = Operation(tmp_operation)(a,b)
+            tmp_operation(a::Number,b::CellField) = Operation(tmp_operation)(a,b)
+            tmp_operation(a::CellField,b::CellField) = Operation(tmp_operation)(a,b)
+            tmp_operation(a::CellField,b::AbstractArray{<:Number}) = Operation(tmp_operation)(a,b)
+            tmp_operation(a::AbstractArray{<:Number},b::CellField) = Operation(tmp_operation)(a,b)
+            $(esc(out_args[1])) = tmp_operation($(esc(A_in_args[1])),$(esc(B_in_args[1])))
+        end
+    end
+    end
+end
