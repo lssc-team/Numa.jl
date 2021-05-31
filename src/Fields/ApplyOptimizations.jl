@@ -275,18 +275,6 @@ end
 
 # Memoization
 
-<<<<<<< HEAD
-# MemoArray(a) = a
-
-struct MemoArray{T,N,A} <: AbstractArray{T,N}
- parent::A
- memo::Dict{Any,Any}
- function MemoArray(parent::AbstractArray{T,N}) where {T,N}
-   A = typeof(parent)
-   memo = Dict()
-   new{T,N,A}(parent,memo)
- end
-=======
 #MemoArray(a) = a
 
 struct MemoArray{T,N,A} <: AbstractArray{T,N}
@@ -297,18 +285,13 @@ struct MemoArray{T,N,A} <: AbstractArray{T,N}
     memo = Dict()
     new{T,N,A}(parent,memo)
   end
->>>>>>> e41c3a0a8df237a1e892ddeff67d8cf91b1c784c
 end
 
 # Do not wrap twice.
 MemoArray(parent::MemoArray) = parent
 
 function get_children(n::TreeNode, a::MemoArray)
-<<<<<<< HEAD
-  (similar_tree_node(n,a.parent),)
-=======
    (similar_tree_node(n,a.parent),)
->>>>>>> e41c3a0a8df237a1e892ddeff67d8cf91b1c784c
 end
 
 Base.size(a::MemoArray) = size(a.parent)
@@ -323,88 +306,6 @@ Arrays.testitem(a::MemoArray) = testitem(a.parent)
 Arrays.get_array(a::MemoArray) = get_array(a.parent)
 
 function lazy_map(::typeof(evaluate),a::MemoArray,x::AbstractArray{<:Point})
-<<<<<<< HEAD
- key = (:evaluate,objectid(x))
- if ! haskey(a.memo,key)
-   a.memo[key] = lazy_map(evaluate,a.parent,x)
- end
- a.memo[key]
-end
-
-function lazy_map(::typeof(evaluate),a::MemoArray,x::AbstractArray{<:AbstractArray{<:Point}})
- key = (:evaluate,objectid(x))
- if ! haskey(a.memo,key)
-   a.memo[key] = lazy_map(evaluate,a.parent,x)
- end
- a.memo[key]
-end
-
-function lazy_map(k::typeof(∇),a::MemoArray)
- lazy_map(Broadcasting(∇),a)
-end
-
-function lazy_map(k::Broadcasting{typeof(∇)},a::MemoArray)
- key = :gradient
- if ! haskey(a.memo,key)
-   a.memo[key] = MemoArray(lazy_map(k,a.parent))
- end
- a.memo[key]
-end
-
-function lazy_map(
- k::Broadcasting{typeof(push_∇)},
- cell_∇a::MemoArray,
- cell_map::AbstractArray)
- key = (:push_gradient,objectid(cell_map))
- if ! haskey(cell_∇a.memo,key)
-   cell_∇a.memo[key] = MemoArray(lazy_map(k,cell_∇a.parent,cell_map))
- end
- cell_∇a.memo[key]
-end
-
-function lazy_map(k::typeof(axes),a::MemoArray)
- lazy_map(k,a.parent)
-end
-
-function lazy_map(k::Reindex{<:MemoArray},::Type{T}, j_to_i::AbstractArray) where T
- key = (:reindex,objectid(j_to_i))
- if ! haskey(k.values.memo,key)
-   i_to_v = k.values.parent
-   j_to_v = lazy_map(Reindex(i_to_v),T,j_to_i)
-   k.values.memo[key] = MemoArray(j_to_v)
- end
- k.values.memo[key]
-end
-
-function lazy_map(k::PosNegReindex{<:MemoArray,<:MemoArray},::Type{T},i_to_iposneg::AbstractArray) where T
- values_pos = k.values_pos.parent
- values_neg = k.values_neg.parent
- r = lazy_map(PosNegReindex(values_pos,values_neg),i_to_iposneg)
- MemoArray(r)
-end
-
-function lazy_map(
- k::typeof(∘), a::MemoArray,b::AbstractArray{<:Field})
- lazy_map(Broadcasting(∘),a,b)
-end
-
-function lazy_map(
- k::Broadcasting{typeof(∘)}, a::MemoArray,b::AbstractArray{<:Field})
- key = (:compose,objectid(b))
- if ! haskey(a.memo,key)
-   a.memo[key] = MemoArray(lazy_map(k,a.parent,b))
- end
- a.memo[key]
-end
-
-function lazy_map(
- k::typeof(transpose), a::MemoArray)
- key = :transpose
- if ! haskey(a.memo,key)
-   a.memo[key] = MemoArray(lazy_map(k,a.parent))
- end
- a.memo[key]
-=======
   key = (:evaluate,objectid(x))
   if ! haskey(a.memo,key)
     a.memo[key] = lazy_map(evaluate,a.parent,x)
@@ -485,5 +386,4 @@ function lazy_map(
     a.memo[key] = MemoArray(lazy_map(k,a.parent))
   end
   a.memo[key]
->>>>>>> e41c3a0a8df237a1e892ddeff67d8cf91b1c784c
 end
