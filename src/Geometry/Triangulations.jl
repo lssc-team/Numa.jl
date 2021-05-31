@@ -326,8 +326,12 @@ function get_cell_node_ids(trian::Triangulation)
   @notimplemented
 end
 
-function compress(cell_mat,trian::Triangulation)
-  cell_mat, get_cell_to_bgcell(trian)
+function compress_contributions(cell_mat,trian::Triangulation)
+  cell_mat
+end
+
+function compress_ids(cell_ids,trian::Triangulation)
+  cell_ids
 end
 
 function Quadrature(trian::Triangulation,args...;kwargs...)

@@ -96,7 +96,8 @@ export is_oriented
 export is_regular
 export expand_cell_data
 export compress_cell_data
-export compress
+export compress_contributions
+export compress_ids
 
 export UnstructuredGridTopology
 
