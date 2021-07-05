@@ -97,7 +97,7 @@ export gather_dirichlet_values!
 export gather_free_values
 export gather_free_values!
 export test_single_field_fe_space
-export get_dirichlet_values
+export get_dirichlet_dof_values
 export interpolate
 export interpolate!
 export interpolate_everywhere
@@ -224,5 +224,15 @@ include("DirichletFESpaces.jl")
 include("ExtendedFESpaces.jl")
 
 include("FESpacesWithLinearConstraints.jl")
+
+export get_free_values
+function get_free_values(args...)
+  @unreachable "get_free_values has been removed. Use get_free_dof_values instead."
+end
+
+export get_dirichlet_values
+function get_dirichlet_values(args...)
+  @unreachable "get_dirichlet_values has been removed. Use get_dirichlet_dof_values instead."
+end
 
 end # module

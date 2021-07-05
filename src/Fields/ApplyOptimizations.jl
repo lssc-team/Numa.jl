@@ -275,17 +275,18 @@ end
 
 # Memoization
 
-#MemoArray(a) = a
-
 struct MemoArray{T,N,A} <: AbstractArray{T,N}
   parent::A
   memo::Dict{Any,Any}
   function MemoArray(parent::AbstractArray{T,N}) where {T,N}
-    A = typeof(parent)
-    memo = Dict()
-    new{T,N,A}(parent,memo)
+    parent
+    #A = typeof(parent)
+    #memo = Dict()
+    #new{T,N,A}(parent,memo)
   end
 end
+
+MemoArray(a) = a
 
 # Do not wrap twice.
 MemoArray(parent::MemoArray) = parent
@@ -349,13 +350,17 @@ function lazy_map(k::typeof(axes),a::MemoArray)
 end
 
 function lazy_map(k::Reindex{<:MemoArray},::Type{T}, j_to_i::AbstractArray) where T
-  key = (:reindex,objectid(j_to_i))
-  if ! haskey(k.values.memo,key)
-    i_to_v = k.values.parent
-    j_to_v = lazy_map(Reindex(i_to_v),T,j_to_i)
-    k.values.memo[key] = MemoArray(j_to_v)
-  end
-  k.values.memo[key]
+  # Commenting in order to fix issue #614
+  #key = (:reindex,objectid(j_to_i))
+  #if ! haskey(k.values.memo,key)
+  #  i_to_v = k.values.parent
+  #  j_to_v = lazy_map(Reindex(i_to_v),T,j_to_i)
+  #  k.values.memo[key] = MemoArray(j_to_v)
+  #end
+  #k.values.memo[key]
+  i_to_v = k.values.parent
+  j_to_v = lazy_map(Reindex(i_to_v),T,j_to_i)
+  MemoArray(j_to_v)
 end
 
 function lazy_map(k::PosNegReindex{<:MemoArray,<:MemoArray},::Type{T},i_to_iposneg::AbstractArray) where T
